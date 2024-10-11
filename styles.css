@@ -1,0 +1,39 @@
+body {
+    margin: 0;
+    overflow: hidden; /* Prevent scrollbars */
+    background-color: #f0f0f0; /* Light background for better visibility */
+}
+
+.circle {
+    position: absolute;
+    width: 200px; /* Circle size */
+    height: 200px; /* Circle size */
+    background-size: cover; /* Scale the image to cover the circle */
+    border-radius: 50%; /* Makes it a circle */
+    border: 2px solid red; /* Add a border for visibility */
+    background-color: rgba(0, 0, 0, 0.5); /* Optional fallback color */
+}
+
+.finish-line {
+    position: absolute;
+    right: 30px; /* Aligns the finish line to the right edge */
+    top: 0; /* Start from the top */
+    width: 5px; /* Width of the finish line */
+    height: 100%; /* Full height of the viewport */
+    background-color: red; /* Color of the finish line */
+}
+
+.controls {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background-color: #fff;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.controls input {
+    width: 60px;
+}
