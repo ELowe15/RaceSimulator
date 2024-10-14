@@ -1,21 +1,17 @@
-let numCircles = 3; // Number of circles to create
-const circles = [];
-const placements = []; // To track the order in which circles finish
+let players = []; // Array to store player data
+const placements = []; // To track the order in which players finish
 
 let raceDuration = 10; // Default race duration
 let speeds = [];
-let finished = []; // Array to track whether a circle has finished
-const maxSpeed = 5; // Maximum speed for the circles
-const minSpeed = 1; // Minimum speed for the circles
+let finished = []; // Array to track whether a player has finished
+const maxSpeed = 5; // Maximum speed for the players
+const minSpeed = 1; // Minimum speed for the players
 
-// Array of image URLs and corresponding names
-const circleData = [
-    { name: 'Kelly', image: 'Kelly.png' },
-    { name: 'Evan', image: 'Evan.png' },
-    { name: 'Scott', image: 'Scott.png' } // Ensure you have exactly three unique images
-];
+// Default player and background images (dynamic references)
+const defaultPlayerImage = 'default_player.jfif'; // Change file extension as needed
+const backgroundImage = 'bball_court.jfif'; // Change file extension as needed
 
-// Shuffle the circle data (names and images together)
+// Function to shuffle an array
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -23,122 +19,250 @@ function shuffleArray(array) {
     }
 }
 
-// Shuffle the circle data once
-shuffleArray(circleData);
-
-// Define starting and finish line positions
-const startPosition = 50; // Starting X position
-const finishLine = window.innerWidth - 100; // Finish line position
-
-// Create a circle with a unique image and name
-function createCircle(index) {
-    const circle = document.createElement('div');
-    circle.classList.add('circle');
-
-    // Use the shuffled image based on the index
-    circle.style.backgroundImage = `url('${circleData[index].image}')`;
-
-    // Set starting position
-    circle.style.left = startPosition + 'px';
-
-    // Calculate vertical position based on the index to evenly space circles
-    const spacing = (window.innerHeight - 100) / (numCircles + 1); // +1 to avoid sticking to the edges
-    circle.style.top = (spacing * (index + 1)) + 'px'; // Evenly spaced
-
-    circles.push(circle);
-    document.body.appendChild(circle);
+// Create a player with a name and image
+function createPlayer(name, image) {
+    return { name, image };
 }
 
-// Create multiple circles with unique images and names
-function createCircles() {
-    for (let i = 0; i < numCircles; i++) {
-        createCircle(i); // Pass the index to use unique images and names
-    }
+function createPlayerElement(player, index) {
+    const playerDiv = document.createElement('div');
+    playerDiv.classList.add('player-container');
+    playerDiv.style.position = 'absolute'; // Position the entire container absolutely
+
+    // Create a name label
+    const nameLabel = document.createElement('div');
+    nameLabel.classList.add('player-name-label');
+    nameLabel.innerText = player.name;
+    playerDiv.appendChild(nameLabel); // Add name label above image
+
+    // Create a player image div
+    const playerImageDiv = document.createElement('div');
+    playerImageDiv.classList.add('player');
+    playerImageDiv.style.backgroundImage = `url('${player.image}')`;
+    playerImageDiv.style.left = '0px'; // Starting position
+
+    playerDiv.appendChild(playerImageDiv); // Add image below name
+
+    const totalPlayers = players.length;
+    const spacing = Math.min(400, window.innerHeight / (totalPlayers + 1)); // Calculate spacing based on number of players
+    playerDiv.style.top = `${(index + 1) * spacing}px`; // Space players vertically
+
+    document.body.appendChild(playerDiv);
+    return playerDiv;
 }
 
-// Start the race with a specific duration
+// Start the race
 function startRace() {
     placements.length = 0; // Clear previous placements
     speeds = [];
     finished = [];
-    
-    const trackLength = finishLine - startPosition; // Total distance for the race
 
-    circles.forEach((circle, index) => {
-        // Calculate the base speed needed for each circle to finish the race in raceDuration
-        const baseSpeed = trackLength / (60 * raceDuration); // Pixels per frame for the circle to finish in raceDuration seconds
-
-        // Randomize the base speed for each circle by a factor of +/- 20% and cap it at maxSpeed
-        const speed = Math.min(baseSpeed * (Math.random() * 0.4 + 0.8), maxSpeed); // Speed capped at maxSpeed
-        speeds.push(speed); // Store speed for this circle
-
-        // Track if this circle has finished the race
+    const trackLength = window.innerWidth - 100; // Total distance for the race
+    players.forEach((player, index) => {
+        const baseSpeed = trackLength / (60 * raceDuration);
+        const speed = Math.min(baseSpeed * (Math.random() * 0.4 + 0.8), maxSpeed);
+        speeds.push(speed);
         finished.push(false);
     });
 
-    moveCircles(); // Start the race animation
+    movePlayers(); // Start the race animation
 }
 
-// Move circles with gradually changing speeds
-function moveCircles() {
-    circles.forEach((circle, index) => {
-        // Only move circles that haven't finished yet
+// Move players
+function movePlayers() {
+    const finishLine = window.innerWidth - 120; // Adjust finish line to the left by 20 pixels
+
+    players.forEach((player, index) => {
         if (!finished[index]) {
-            let position = parseFloat(circle.style.left); // Get current position
+            const playerContainer = document.getElementsByClassName('player-container')[index]; // Select the container
+            let position = parseFloat(playerContainer.style.left) || 0; // Get current left position
 
             // Adjust speed randomly
-            const speedChange = (Math.random() - 0.5) * 0.5; // Change speed by +/- 0.5
-            speeds[index] = Math.max(minSpeed, Math.min(speeds[index] + speedChange, maxSpeed)); // Ensure speed is within limits
+            const speedChange = (Math.random() - 0.5) * 0.5;
+            speeds[index] = Math.max(minSpeed, Math.min(speeds[index] + speedChange, maxSpeed));
 
-            position += speeds[index]; // Move based on the circle's speed
+            position += speeds[index]; // Update position based on speed
 
-            // Check if the circle has crossed the finish line
+            // Check for finish line
             if (position >= finishLine) {
-                position = finishLine; // Stop at the finish line
-                finished[index] = true; // Mark this circle as finished
+                position = finishLine; // Stop at the adjusted finish line
+                finished[index] = true; // Mark as finished
+                placements.push(player.name); // Add to placements
+                console.log(`${player.name} has finished!`);
 
-                // Announce the placement of the circle by name
-                placements.push(circleData[index].name); // Add this circle's name to the placements
+                // Maintain the vertical position after finishing
+                playerContainer.style.top = `${(index + 1) * Math.min(400, window.innerHeight / (players.length + 1))}px`;
 
-                console.log(`${circleData[index].name} has finished!`);
-
-                // Check if this is the last circle to finish
-                if (placements.length === numCircles) {
-                    // Announce final placements
-                    alert(`Race finished!\n1st: ${placements[0]}\n2nd: ${placements[1]}\n3rd: ${placements[2]}`);
-
-                    // Show the new race button
-                    document.getElementById('newRaceButton').style.display = 'block';
+                // Show the placements when all players have finished
+                if (placements.length === players.length) {
+                    showRaceResults(); // Call function to show results
                 }
             }
 
-            circle.style.left = position + 'px'; // Update the position
+            playerContainer.style.left = position + 'px'; // Update container's left position
         }
     });
 
-    // Continue moving if any circles haven't finished
     if (finished.includes(false)) {
-        requestAnimationFrame(moveCircles); // Call moveCircles again for the next frame
+        requestAnimationFrame(movePlayers); // Continue animation
     }
 }
 
-// Event listener for the "Start" button
-document.getElementById('startButton').addEventListener('click', () => {
-    // Get the race duration from the input field
-    raceDuration = parseFloat(document.getElementById('raceTime').value);
-    
-    // Create circles and start the race
-    if (circles.length === 0) {
-        createCircles();
-    }
-    startRace();
-});
+// Function to display race results
+function showRaceResults() {
+    const resultMessage = placements.map((playerName, index) => {
+        const placement = index + 1; // Get placement (1st, 2nd, etc.)
+        const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
+        return `${placement}${suffix}: ${playerName}`; // Format the message
+    }).join('\n'); // Join results with new lines
 
-// Event listener for the "Start New Race" button
-document.getElementById('newRaceButton').addEventListener('click', () => {
-    // Reset the circles and placements for a new race
-    circles.forEach(circle => document.body.removeChild(circle));
-    circles.length = 0; // Clear the circles array
-    placements.length = 0; // Clear previous placements
-    document.getElementById('newRaceButton').style.display = 'none'; // Hide the new race button
-});
+    alert(`Race finished!\n${resultMessage}`); // Show results in alert
+}
+
+
+// Save settings to local storage
+function saveSettings() {
+    const settings = {
+        players: players.map(player => ({ name: player.name, image: player.image })),
+        raceDuration
+    };
+    localStorage.setItem('fantasyRaceSettings', JSON.stringify(settings));
+    alert('Settings saved!');
+}
+
+// Load settings from local storage
+function loadSettings() {
+    const savedSettings = localStorage.getItem('fantasyRaceSettings');
+    if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        players = settings.players.map(player => createPlayer(player.name, player.image));
+        raceDuration = settings.raceDuration;
+        document.getElementById('raceTime').value = raceDuration; // Update race duration input
+        initializeUI(); // Re-initialize UI with loaded settings
+        players.forEach((player, index) => createPlayerElement(player, index));
+    } else {
+        alert('No saved settings found.');
+    }
+}
+
+// Create controls for player input
+function createControls() {
+    const controlsDiv = document.createElement('div');
+    controlsDiv.classList.add('controls');
+
+    // Input for race duration
+    const raceTimeInput = document.createElement('input');
+    raceTimeInput.id = 'raceTime';
+    raceTimeInput.type = 'number';
+    raceTimeInput.value = raceDuration;
+    raceTimeInput.min = 1;
+    raceTimeInput.placeholder = 'Race Duration (seconds)';
+    controlsDiv.appendChild(raceTimeInput);
+
+     // Number of players input
+     const numberInput = document.createElement('input');
+     numberInput.id = 'numberOfPlayers';
+     numberInput.type = 'number';
+     numberInput.placeholder = 'Number of Players';
+     numberInput.min = 1;
+     numberInput.value = 12; // Set default number of players to 12
+     controlsDiv.appendChild(numberInput);
+
+    const playerListButton = document.createElement('button');
+    playerListButton.innerText = 'Player List';
+    playerListButton.onclick = () => {
+        const numPlayers = parseInt(numberInput.value);
+        if (numPlayers > 0) {
+            players = []; // Clear existing players
+            const playerInputsDiv = document.getElementById('playerInputs');
+            playerInputsDiv.innerHTML = ''; // Clear previous inputs
+
+            for (let i = 0; i < numPlayers; i++) {
+                const playerDiv = document.createElement('div');
+                playerDiv.classList.add('player-input');
+
+                const nameInput = document.createElement('input');
+                nameInput.placeholder = `Player ${i + 1} Name`;
+                nameInput.classList.add('player-name');
+                playerDiv.appendChild(nameInput);
+
+                const imageInput = document.createElement('input');
+                imageInput.type = 'file';
+                imageInput.accept = 'image/*'; // Accept any image type
+                imageInput.classList.add('player-image');
+                playerDiv.appendChild(imageInput);
+
+                playerInputsDiv.appendChild(playerDiv);
+            }
+        }
+    };
+    controlsDiv.appendChild(playerListButton);
+
+    const startButton = document.createElement('button');
+    startButton.innerText = 'Start Race';
+    startButton.onclick = () => {
+        const playerDivs = document.querySelectorAll('.player-input');
+        players = []; // Reset players array
+
+        playerDivs.forEach((div) => {
+            const nameInput = div.querySelector('.player-name');
+            const imageInput = div.querySelector('.player-image');
+            const name = nameInput.value.trim();
+            const imageFile = imageInput.files[0];
+            const image = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage;
+
+            // Always add player regardless of whether name is entered or not
+            players.push(createPlayer(name || `Default Player ${players.length + 1}`, image));
+        });
+
+        // Ensure the number of players matches the input
+        while (players.length < parseInt(numberInput.value)) {
+            players.push(createPlayer(`Default Player ${players.length + 1}`, defaultPlayerImage));
+        }
+
+        // Clear previous player elements and create new ones
+        document.body.innerHTML = ''; // Clear existing players
+        initializeUI(); // Retain controls
+        players.forEach((player, index) => createPlayerElement(player, index));
+        startRace();
+    };
+    controlsDiv.appendChild(startButton);
+
+    const saveButton = document.createElement('button');
+    saveButton.innerText = 'Save Settings';
+    saveButton.onclick = saveSettings;
+    controlsDiv.appendChild(saveButton);
+
+    const loadButton = document.createElement('button');
+    loadButton.innerText = 'Load Settings';
+    loadButton.onclick = loadSettings;
+    controlsDiv.appendChild(loadButton);
+
+    const newRaceButton = document.createElement('button');
+    newRaceButton.id = 'newRaceButton';
+    newRaceButton.innerText = 'Start New Race';
+    newRaceButton.style.display = 'none'; // Hide for now
+    newRaceButton.onclick = () => {
+        document.body.innerHTML = ''; // Clear the body for a new race
+        initializeUI(); // Re-initialize UI
+    };
+    controlsDiv.appendChild(newRaceButton);
+
+    // Div for player inputs
+    const playerInputsDiv = document.createElement('div');
+    playerInputsDiv.id = 'playerInputs';
+    controlsDiv.appendChild(playerInputsDiv);
+
+    document.body.appendChild(controlsDiv); // Append controls to the body
+}
+
+// Initialize the UI
+function initializeUI() {
+    document.body.style.backgroundImage = `url('${backgroundImage}')`; // Set background image
+    document.body.style.backgroundSize = 'cover'; // Cover the entire background
+    document.body.style.backgroundPosition = 'center'; // Center the background
+    createControls(); // Create controls
+}
+
+// Initialize the UI on page load
+initializeUI();
