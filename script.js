@@ -4,6 +4,7 @@ const placements = []; // To track the order in which players finish
 let raceDuration = 10; // Default race duration
 let speeds = [];
 let finished = []; // Array to track whether a player has finished
+let finishedCount = 0; // Variable to keep track of how many players have finished
 const maxSpeed = 5; // Maximum speed for the players
 const minSpeed = 1; // Minimum speed for the players
 
@@ -46,6 +47,12 @@ function createPlayerElement(player, index) {
     playerDiv.classList.add('player-container');
     playerDiv.style.position = 'absolute'; // Position the entire container absolutely
 
+    // Create a position label
+    const positionLabel = document.createElement('div');
+    positionLabel.classList.add('player-position-label');
+    positionLabel.innerText = `${index + 1}th`; // Set position (will update in the race)
+    playerDiv.appendChild(positionLabel); // Add position label to the left
+
     // Create a name label
     const nameLabel = document.createElement('div');
     nameLabel.classList.add('player-name-label');
@@ -62,7 +69,7 @@ function createPlayerElement(player, index) {
     playerDiv.appendChild(playerImageDiv); // Add image below name
 
     const totalPlayers = players.length;
-    const BOTTOMOFFSET = 50;
+    const BOTTOMOFFSET = 20;
     const spacing = Math.min(400, (window.innerHeight - BOTTOMOFFSET) / (totalPlayers + 1)); // Calculate spacing based on number of players
     playerDiv.style.top = `${(index + 1) * spacing}px`; // Space players vertically
 
@@ -70,8 +77,10 @@ function createPlayerElement(player, index) {
     return playerDiv;
 }
 
+
 // Start the race
 function startRace() {
+    finishedCount = 0;
     placements.length = 0; // Clear previous placements
     speeds = [];
     finished = [];
@@ -89,12 +98,18 @@ function startRace() {
 
 // Move players
 function movePlayers() {
-    const finishLine = window.innerWidth - 120; // Adjust finish line to the left by 20 pixels
+    const finishLine = window.innerWidth - 155; // Adjust finish line to the left by 20 pixels
+
+    // Store the current positions and their corresponding indices
+    const currentPositions = players.map((_, index) => ({
+        index,
+        position: parseFloat(document.getElementsByClassName('player-container')[index].style.left) || 0
+    }));
 
     players.forEach((player, index) => {
         if (!finished[index]) {
             const playerContainer = document.getElementsByClassName('player-container')[index]; // Select the container
-            let position = parseFloat(playerContainer.style.left) || 0; // Get current left position
+            let position = currentPositions[index].position; // Get current left position
 
             // Adjust speed randomly
             const speedChange = (Math.random() - 0.5) * 0.5;
@@ -106,6 +121,7 @@ function movePlayers() {
             if (position >= finishLine) {
                 position = finishLine; // Stop at the adjusted finish line
                 finished[index] = true; // Mark as finished
+                finishedCount++;
                 placements.push(player.name); // Add to placements
                 console.log(`${player.name} has finished!`);
 
@@ -117,6 +133,18 @@ function movePlayers() {
 
             playerContainer.style.left = position + 'px'; // Update container's left position
         }
+    });
+
+    // Recalculate positions and update labels
+    const finishedPlayers = currentPositions.filter((_, index) => !finished[index]); // Get players who haven't finished
+    const sortedPositions = finishedPlayers.sort((a, b) => b.position - a.position); // Sort based on position
+
+    // Update position labels for the current placements
+    sortedPositions.forEach((playerPos, rank) => {
+        const positionLabel = document.getElementsByClassName('player-container')[playerPos.index].querySelector('.player-position-label');
+        const placement = rank + 1 + finishedCount; // Determine current placement
+        const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
+        positionLabel.innerText = `${placement}${suffix}`; // Update position label
     });
 
     if (finished.includes(false)) {
