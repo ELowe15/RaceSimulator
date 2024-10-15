@@ -8,7 +8,7 @@ const maxSpeed = 5; // Maximum speed for the players
 const minSpeed = 1; // Minimum speed for the players
 
 // Default player and background images (dynamic references)
-const defaultPlayerImage = 'default_player.jfif'; // Change file extension as needed
+const defaultPlayerImage = 'bball.png'; // Default to bball.png
 const backgroundImage = 'bball_court.jfif'; // Change file extension as needed
 
 // Function to shuffle an array
@@ -19,11 +19,28 @@ function shuffleArray(array) {
     }
 }
 
-// Create a player with a name and image
-function createPlayer(name, image) {
-    return { name, image };
+// Function to generate random background color
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
 
+// Function to generate random player names
+function getRandomName() {
+    const names = ['Jordan', 'LeBron', 'Kobe', 'Shaq', 'Magic', 'Larry', 'Wilt', 'Russell', 'Curry', 'Durant', 'Iverson', 'Garnett'];
+    return names[Math.floor(Math.random() * names.length)];
+}
+
+// Create a player with a name, image, and background color
+function createPlayer(name, image, backgroundColor) {
+    return { name, image, backgroundColor }; // Include background color in the player object
+}
+
+// Create player element including a color picker for background color
 function createPlayerElement(player, index) {
     const playerDiv = document.createElement('div');
     playerDiv.classList.add('player-container');
@@ -39,12 +56,14 @@ function createPlayerElement(player, index) {
     const playerImageDiv = document.createElement('div');
     playerImageDiv.classList.add('player');
     playerImageDiv.style.backgroundImage = `url('${player.image}')`;
+    playerImageDiv.style.backgroundColor = player.backgroundColor; // Set the background color
     playerImageDiv.style.left = '0px'; // Starting position
 
     playerDiv.appendChild(playerImageDiv); // Add image below name
 
     const totalPlayers = players.length;
-    const spacing = Math.min(400, window.innerHeight / (totalPlayers + 1)); // Calculate spacing based on number of players
+    const BOTTOMOFFSET = 50;
+    const spacing = Math.min(400, (window.innerHeight - BOTTOMOFFSET) / (totalPlayers + 1)); // Calculate spacing based on number of players
     playerDiv.style.top = `${(index + 1) * spacing}px`; // Space players vertically
 
     document.body.appendChild(playerDiv);
@@ -90,9 +109,6 @@ function movePlayers() {
                 placements.push(player.name); // Add to placements
                 console.log(`${player.name} has finished!`);
 
-                // Maintain the vertical position after finishing
-                playerContainer.style.top = `${(index + 1) * Math.min(400, window.innerHeight / (players.length + 1))}px`;
-
                 // Show the placements when all players have finished
                 if (placements.length === players.length) {
                     showRaceResults(); // Call function to show results
@@ -119,11 +135,10 @@ function showRaceResults() {
     alert(`Race finished!\n${resultMessage}`); // Show results in alert
 }
 
-
 // Save settings to local storage
 function saveSettings() {
     const settings = {
-        players: players.map(player => ({ name: player.name, image: player.image })),
+        players: players.map(player => ({ name: player.name, image: player.image, backgroundColor: player.backgroundColor })), // Include background color
         raceDuration
     };
     localStorage.setItem('fantasyRaceSettings', JSON.stringify(settings));
@@ -135,7 +150,7 @@ function loadSettings() {
     const savedSettings = localStorage.getItem('fantasyRaceSettings');
     if (savedSettings) {
         const settings = JSON.parse(savedSettings);
-        players = settings.players.map(player => createPlayer(player.name, player.image));
+        players = settings.players.map(player => createPlayer(player.name, player.image, player.backgroundColor)); // Include background color
         raceDuration = settings.raceDuration;
         document.getElementById('raceTime').value = raceDuration; // Update race duration input
         initializeUI(); // Re-initialize UI with loaded settings
@@ -159,14 +174,14 @@ function createControls() {
     raceTimeInput.placeholder = 'Race Duration (seconds)';
     controlsDiv.appendChild(raceTimeInput);
 
-     // Number of players input
-     const numberInput = document.createElement('input');
-     numberInput.id = 'numberOfPlayers';
-     numberInput.type = 'number';
-     numberInput.placeholder = 'Number of Players';
-     numberInput.min = 1;
-     numberInput.value = 12; // Set default number of players to 12
-     controlsDiv.appendChild(numberInput);
+    // Number of players input
+    const numberInput = document.createElement('input');
+    numberInput.id = 'numberOfPlayers';
+    numberInput.type = 'number';
+    numberInput.placeholder = 'Number of Players';
+    numberInput.min = 1;
+    numberInput.value = 12; // Default number of players
+    controlsDiv.appendChild(numberInput);
 
     const playerListButton = document.createElement('button');
     playerListButton.innerText = 'Player List';
@@ -184,6 +199,7 @@ function createControls() {
                 const nameInput = document.createElement('input');
                 nameInput.placeholder = `Player ${i + 1} Name`;
                 nameInput.classList.add('player-name');
+                nameInput.value = getRandomName(); // Assign a random name
                 playerDiv.appendChild(nameInput);
 
                 const imageInput = document.createElement('input');
@@ -191,6 +207,13 @@ function createControls() {
                 imageInput.accept = 'image/*'; // Accept any image type
                 imageInput.classList.add('player-image');
                 playerDiv.appendChild(imageInput);
+
+                // Add background color input
+                const colorInput = document.createElement('input');
+                colorInput.type = 'color';
+                colorInput.value = getRandomColor(); // Assign random background color
+                colorInput.classList.add('player-color');
+                playerDiv.appendChild(colorInput);
 
                 playerInputsDiv.appendChild(playerDiv);
             }
@@ -207,17 +230,22 @@ function createControls() {
         playerDivs.forEach((div) => {
             const nameInput = div.querySelector('.player-name');
             const imageInput = div.querySelector('.player-image');
+            const colorInput = div.querySelector('.player-color');
             const name = nameInput.value.trim();
             const imageFile = imageInput.files[0];
             const image = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage;
+            const backgroundColor = colorInput.value || getRandomColor();
 
-            // Always add player regardless of whether name is entered or not
-            players.push(createPlayer(name || `Default Player ${players.length + 1}`, image));
+            players.push({
+                name: name || `Default Player ${players.length + 1}`,
+                image,
+                backgroundColor
+            });
         });
 
         // Ensure the number of players matches the input
         while (players.length < parseInt(numberInput.value)) {
-            players.push(createPlayer(`Default Player ${players.length + 1}`, defaultPlayerImage));
+            players.push(createPlayer(getRandomName(), defaultPlayerImage, getRandomColor())); // Add random background color
         }
 
         // Clear previous player elements and create new ones
@@ -238,31 +266,17 @@ function createControls() {
     loadButton.onclick = loadSettings;
     controlsDiv.appendChild(loadButton);
 
-    const newRaceButton = document.createElement('button');
-    newRaceButton.id = 'newRaceButton';
-    newRaceButton.innerText = 'Start New Race';
-    newRaceButton.style.display = 'none'; // Hide for now
-    newRaceButton.onclick = () => {
-        document.body.innerHTML = ''; // Clear the body for a new race
-        initializeUI(); // Re-initialize UI
-    };
-    controlsDiv.appendChild(newRaceButton);
-
-    // Div for player inputs
-    const playerInputsDiv = document.createElement('div');
-    playerInputsDiv.id = 'playerInputs';
-    controlsDiv.appendChild(playerInputsDiv);
-
-    document.body.appendChild(controlsDiv); // Append controls to the body
+    document.body.appendChild(controlsDiv);
 }
 
-// Initialize the UI
+// Initialize UI
 function initializeUI() {
-    document.body.style.backgroundImage = `url('${backgroundImage}')`; // Set background image
-    document.body.style.backgroundSize = 'cover'; // Cover the entire background
-    document.body.style.backgroundPosition = 'center'; // Center the background
+    const playerInputsDiv = document.createElement('div');
+    playerInputsDiv.id = 'playerInputs';
+    document.body.appendChild(playerInputsDiv);
+
     createControls(); // Create controls
 }
 
-// Initialize the UI on page load
+// Start the application
 initializeUI();

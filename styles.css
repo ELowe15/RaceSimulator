@@ -1,16 +1,12 @@
 body {
-    margin: 0;
-    overflow: hidden; /* Prevent scrollbars */
-    background-color: #f0f0f0; /* Light background for better visibility */
-    background-image: url('bball_court.jfif'); /* Set default background */
-    background-size: contain; /* Scale the background to fit the container */
-    background-repeat: no-repeat; /* Prevent the background from repeating */
-    background-position: center; /* Center the background */
-    display: flex;
-    justify-content: center; /* Center elements horizontally */
-    align-items: flex-start; /* Align items at the top */
-    flex-direction: column; /* Stack elements vertically */
-    height: 100vh; /* Full viewport height */
+    background-image: url('bball_court.jfif'); /* Path to your background image */
+    background-size: 100% 100%; /* Stretches the image to fill the viewport */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents tiling */
+    margin: 0; /* Removes default margin */
+    height: 100vh; /* Sets the height to 100% of the viewport height */
+    width: 100vw; /* Sets the width to 100% of the viewport width */
+    position: relative; /* Allows absolutely positioned child elements to be positioned relative to the body */
 }
 
 .player-container {
@@ -21,8 +17,8 @@ body {
 }
 
 .player {
-    width: 100px; /* Player size */
-    height: 100px; /* Player size */
+    width: 90px; /* Player size */
+    height: 90px; /* Player size */
     background-size: cover; /* Scale the image to cover the player */
     border-radius: 50%; /* Makes it a circle */
     border: 2px solid red; /* Add a border for visibility */
@@ -33,7 +29,7 @@ body {
     color: white; /* Color of the name label */
     font-weight: bold; /* Bold text for better visibility */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); /* Shadow for better readability */
-    margin-bottom: 10px; /* Space between name and image */
+    margin-bottom: 0px; /* Space between name and image */
 }
 
 .controls {
