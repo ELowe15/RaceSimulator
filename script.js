@@ -93,6 +93,7 @@ function createPlayerElement(player, index) {
 
 // Start the race
 function startRace() {
+    toggleControls(false); // Hide the controls
     finishedCount = 0;
     placements.length = 0; // Clear previous placements
     speeds = [];
@@ -140,7 +141,7 @@ function movePlayers() {
 
                 // Show the placements when all players have finished
                 if (placements.length === players.length) {
-                    showRaceResults(); // Call function to show results
+                    endRace(); // Call function to show results
                 }
             }
 
@@ -165,7 +166,7 @@ function movePlayers() {
     }
 }
 
-// Function to display race results
+/* Function to display race results
 function showRaceResults() {
     const resultMessage = placements.map((playerName, index) => {
         const placement = index + 1; // Get placement (1st, 2nd, etc.)
@@ -174,6 +175,67 @@ function showRaceResults() {
     }).join('\n'); // Join results with new lines
 
     alert(`Race finished!\n${resultMessage}`); // Show results in alert
+}*/
+function endRace() {
+    showStandings()
+    toggleControls(true); // Show the controls
+}
+
+function showStandings() {
+    /*if (placements.length === 0) {
+        alert('No standings available yet. Complete a race first.');
+        return;
+    }*/
+    const standingsDiv = document.createElement('div');
+    standingsDiv.style.position = 'fixed';
+    standingsDiv.style.top = '50%';
+    standingsDiv.style.left = '50%';
+    standingsDiv.style.transform = 'translate(-50%, -50%)';
+    standingsDiv.style.backgroundColor = '#fff';
+    standingsDiv.style.padding = '20px';
+    standingsDiv.style.border = '1px solid #ccc';
+    standingsDiv.style.borderRadius = '10px';
+    standingsDiv.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+    standingsDiv.style.zIndex = '1001';
+
+    const closeButton = document.createElement('button');
+    closeButton.innerText = 'Close';
+    closeButton.onclick = () => {
+        standingsDiv.remove();
+    };
+
+    const copyButton = document.createElement('button');
+    copyButton.innerText = 'Copy Standings';
+    copyButton.onclick = () => {
+        const resultMessage = placements.map((playerName, index) => {
+            const placement = index + 1; // Get placement (1st, 2nd, etc.)
+            const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
+            return `${placement}${suffix}: ${playerName}`; // Format the message
+        }).join('\n'); // Join results with new lines
+
+        navigator.clipboard.writeText(`Standings\n${resultMessage}`)
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+    };
+
+    const standingsList = placements.map((playerName, index) => {
+        const placement = index + 1;
+        const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
+        return `<p>${placement}${suffix}: ${playerName}</p>`;
+    }).join('');
+
+    standingsDiv.innerHTML = `<h3>Standings</h3>${standingsList}`;
+    standingsDiv.appendChild(copyButton); // Add the copy button
+    standingsDiv.appendChild(closeButton);
+    document.body.appendChild(standingsDiv);
+}
+
+function toggleControls(visible) {
+    const controlsDiv = document.querySelector('.controls');
+    if (controlsDiv) {
+        controlsDiv.style.display = visible ? 'block' : 'none'; // Show or hide based on the visible flag
+    }
 }
 
 // Save settings to local storage
@@ -205,6 +267,36 @@ function loadSettings() {
 function createControls() {
     const controlsDiv = document.createElement('div');
     controlsDiv.classList.add('controls');
+
+    // Race type drop-down
+    const raceTypeLabel = document.createElement('label');
+    raceTypeLabel.innerText = 'Race Type: ';
+    const raceTypeSelect = document.createElement('select');
+    const raceTypes = ['Balanced', 'Close', 'Hectic'];
+    raceTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.text = type;
+        raceTypeSelect.appendChild(option);
+    });
+    controlsDiv.appendChild(raceTypeLabel);
+    controlsDiv.appendChild(raceTypeSelect);
+
+    // Drop-down for sports selection
+    const sportLabel = document.createElement('label');
+    sportLabel.innerText = 'Select Sport: ';
+    controlsDiv.appendChild(sportLabel);
+
+    const sportSelect = document.createElement('select');
+    const sports = ['Basketball', 'Football', 'Hockey', 'Baseball'];
+    sports.forEach(sport => {
+        const option = document.createElement('option');
+        option.value = sport;
+        option.innerText = sport;
+        sportSelect.appendChild(option);
+    });
+    controlsDiv.appendChild(sportSelect);
+
 
     // Input for race duration
     const raceTimeInput = document.createElement('input');
@@ -296,6 +388,13 @@ function createControls() {
         startRace();
     };
     controlsDiv.appendChild(startButton);
+
+    const standingsButton = document.createElement('button');
+    standingsButton.innerText = 'Show Standings';
+    standingsButton.onclick = () => {
+        showStandings();
+    };
+    controlsDiv.appendChild(standingsButton);
 
     const saveButton = document.createElement('button');
     saveButton.innerText = 'Save Settings';
