@@ -1,5 +1,5 @@
 body {
-    background-image: url('bball_court.jfif'); /* Path to your background image */
+    background-image: url('bball_court.jpg'); /* Path to your background image */
     background-size: 100% 100%; /* Stretches the image to fill the viewport */
     background-position: center; /* Centers the image */
     background-repeat: no-repeat; /* Prevents tiling */
@@ -38,10 +38,14 @@ body {
     color: white; /* Color of the position label */
     font-weight: bold; /* Bold text for better visibility */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); /* Shadow for better readability */
+    font-size: 1em; /* Restored font size */
     margin-right: 130px; /* Space between position label and player */
     margin-bottom: -75px; /* Space between name and image */
     display: inline-block; /* Ensure it does not take full width */
+    min-width: 50px; /* Ensure a consistent width */
+    text-align: center; /* Align text to the center of the label */
 }
+
 
 .controls {
     position: fixed;
