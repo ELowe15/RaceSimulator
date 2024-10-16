@@ -45,42 +45,55 @@ body {
     min-width: 50px; /* Ensure a consistent width */
     text-align: center; /* Align text to the center of the label */
 }
-
-
 .controls {
-    position: fixed;
-    top: 10px;
-    left: 10px;
     z-index: 1000;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    background-color: rgba(20, 20, 20, 0.8); /* Darker background */
+    padding: 20px;
+    border: 1px solid #ff6a00; /* Orange border */
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white; /* White text */
+    width: 250px; /* Fixed width for control box */
 }
 
 .controls input {
-    margin-right: 5px;
-    margin-bottom: 5px;
-    padding: 5px;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ff6a00; /* Orange border */
+    border-radius: 5px;
+    background-color: #333; /* Darker input background */
+    color: white; /* Input text color */
+    width: 100%; /* Full width */
 }
 
 .controls button {
-    margin-top: 5px;
-    padding: 5px 10px;
-    background-color: #007bff;
-    color: white;
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #ff6a00; /* Orange background */
+    color: white; /* Button text color */
     border: none;
-    border-radius: 3px;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s; /* Smooth transition */
+    width: 100%; /* Full width for buttons */
 }
 
 .controls button:hover {
-    background-color: #0056b3;
+    background-color: #e95e00; /* Darker orange on hover */
 }
 
-.player-input {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
+.player-list {
+    background-color: rgba(20, 20, 20, 0.8); /* Solid dark background */
+    border: 10px solid #ff6a00; /* Orange border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Space inside player list */
+    margin: 20px; /* Space around player list */
+    display: flex; /* Flexbox for player list */
+    flex-direction: column; /* Stack players vertically */
+    align-items: flex-start; /* Align players to the start */
+    width: 300px; /* Fixed width for player list */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow for depth */
 }
