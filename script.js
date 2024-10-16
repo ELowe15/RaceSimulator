@@ -1,12 +1,10 @@
 let players = []; // Array to store player data
 const placements = []; // To track the order in which players finish
 
-let raceDuration = 10; // Default race duration
+let raceTime; // Default race duration
 let speeds = [];
 let finished = []; // Array to track whether a player has finished
 let finishedCount = 0; // Variable to keep track of how many players have finished
-const maxSpeed = 5; // Maximum speed for the players
-const minSpeed = 1; // Minimum speed for the players
 
 // Default player and background images (dynamic references)
 const defaultPlayerImage = 'bball.png'; // Default to bball.png
@@ -98,13 +96,16 @@ function startRace() {
     placements.length = 0; // Clear previous placements
     speeds = [];
     finished = [];
+    const maxSpeed = 5*10/raceTime; // Maximum speed for the players
+    const minSpeed = 1*10/raceTime; // Minimum speed for the players
 
     const trackLength = window.innerWidth - 100; // Total distance for the race
     players.forEach((player, index) => {
-        const baseSpeed = trackLength / (60 * raceDuration);
+        const baseSpeed = trackLength / (60 * raceTime);
         const speed = Math.min(baseSpeed * (Math.random() * 0.4 + 0.8), maxSpeed);
         speeds.push(speed);
         finished.push(false);
+
     });
 
     movePlayers(); // Start the race animation
@@ -113,7 +114,8 @@ function startRace() {
 // Move players
 function movePlayers() {
     const finishLine = window.innerWidth - 180; // Adjust finish line to the left by 20 pixels
-
+    const maxSpeed = 5*10/raceTime; // Maximum speed for the players
+    const minSpeed = 0.5*10/raceTime; // Minimum speed for the players
     // Store the current positions and their corresponding indices
     const currentPositions = players.map((_, index) => ({
         index,
@@ -125,10 +127,25 @@ function movePlayers() {
             const playerContainer = document.getElementsByClassName('player-container')[index]; // Select the container
             let position = currentPositions[index].position; // Get current left position
 
-            // Adjust speed randomly
-            const speedChange = (Math.random() - 0.5) * 0.5;
-            speeds[index] = Math.max(minSpeed, Math.min(speeds[index] + speedChange, maxSpeed));
+            if ((speeds[index] <= (minSpeed*1.5)) && (Math.floor(Math.random() * 10)%2)) {
+                speedChange = maxSpeed;
+            }
+            else if ((speeds[index] >= (maxSpeed*0.7)) && (Math.floor(Math.random() * 10)%3)){
+                speedChange = -minSpeed*4;
+            }
+            else if ((speeds[index] >= (maxSpeed*0.5)) && (Math.floor(Math.random() * 10)%3)){
+                speedChange = (Math.random() - 1) * 0.5;
+            } else {
+                // Adjust speed randomly
+                speedChange = (Math.random() - 0.5) * 0.5;
+            }
 
+            if(Math.floor(Math.random() * 10)%1) {
+                speedChange = Math.random();
+            }
+            //console.log(speedChange);
+            speeds[index] = Math.max(minSpeed, Math.min(speeds[index] + speedChange, maxSpeed));
+            //console.log(speeds[index]);
             position += speeds[index]; // Update position based on speed
 
             // Check for finish line
@@ -268,7 +285,7 @@ function createControls() {
     const controlsDiv = document.createElement('div');
     controlsDiv.classList.add('controls');
 
-    // Race type drop-down
+    /*// Race type drop-down
     const raceTypeLabel = document.createElement('label');
     raceTypeLabel.innerText = 'Race Type: ';
     const raceTypeSelect = document.createElement('select');
@@ -296,16 +313,26 @@ function createControls() {
         sportSelect.appendChild(option);
     });
     controlsDiv.appendChild(sportSelect);
+    */
 
+    // Create race time label and input
+    const raceTimeLabel = document.createElement('label');
+    raceTimeLabel.textContent = 'Race Time (seconds):';
+    controlsDiv.appendChild(raceTimeLabel);
 
     // Input for race duration
     const raceTimeInput = document.createElement('input');
     raceTimeInput.id = 'raceTime';
     raceTimeInput.type = 'number';
-    raceTimeInput.value = raceDuration;
+    raceTimeInput.value = 10;
     raceTimeInput.min = 1;
     raceTimeInput.placeholder = 'Race Duration (seconds)';
     controlsDiv.appendChild(raceTimeInput);
+
+    // Create number of players label and input
+    const playersLabel = document.createElement('label');
+    playersLabel.textContent = 'Number of Players:';
+    controlsDiv.appendChild(playersLabel);
 
     // Number of players input
     const numberInput = document.createElement('input');
@@ -385,6 +412,8 @@ function createControls() {
         document.body.innerHTML = ''; // Clear existing players
         initializeUI(); // Retain controls
         players.forEach((player, index) => createPlayerElement(player, index));
+        raceTime = parseInt(raceTimeInput.value, 10)
+        //console.log("here");
         startRace();
     };
     controlsDiv.appendChild(startButton);
@@ -396,7 +425,7 @@ function createControls() {
     };
     controlsDiv.appendChild(standingsButton);
 
-    const saveButton = document.createElement('button');
+    /*const saveButton = document.createElement('button');
     saveButton.innerText = 'Save Settings';
     saveButton.onclick = saveSettings;
     controlsDiv.appendChild(saveButton);
@@ -404,7 +433,7 @@ function createControls() {
     const loadButton = document.createElement('button');
     loadButton.innerText = 'Load Settings';
     loadButton.onclick = loadSettings;
-    controlsDiv.appendChild(loadButton);
+    controlsDiv.appendChild(loadButton);*/
 
     document.body.appendChild(controlsDiv);
 }
