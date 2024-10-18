@@ -7,7 +7,7 @@ let finished = []; // Array to track whether a player has finished
 let finishedCount = 0; // Variable to keep track of how many players have finished
 
 // Default player and background images (dynamic references)
-const defaultPlayerImage = 'bball.png'; // Default to bball.png
+const defaultPlayerImage = 'bballHollow.png'; // Default to bball.png
 const backgroundImage = 'bball_court.jfif'; // Change file extension as needed
 
 // Function to shuffle an array
@@ -115,7 +115,7 @@ function startRace() {
 function movePlayers() {
     const finishLine = window.innerWidth - 180; // Adjust finish line to the left by 20 pixels
     const maxSpeed = 5*10/raceTime; // Maximum speed for the players
-    const minSpeed = 0.5*10/raceTime; // Minimum speed for the players
+    const minSpeed = 1*10/raceTime; // Minimum speed for the players
     // Store the current positions and their corresponding indices
     const currentPositions = players.map((_, index) => ({
         index,
@@ -127,22 +127,20 @@ function movePlayers() {
             const playerContainer = document.getElementsByClassName('player-container')[index]; // Select the container
             let position = currentPositions[index].position; // Get current left position
 
-            if ((speeds[index] <= (minSpeed*1.5)) && (Math.floor(Math.random() * 10)%2)) {
-                speedChange = maxSpeed;
+            if ((speeds[index] <= (minSpeed*2.5)) && (Math.floor(Math.random() * 5)%1)) {
+                speedChange = minSpeed + (Math.random()) * 0.5;;
             }
-            else if ((speeds[index] >= (maxSpeed*0.7)) && (Math.floor(Math.random() * 10)%3)){
+            /*else if ((speeds[index] >= (maxSpeed*0.7)) && (Math.floor(Math.random() * 10)%3)){
                 speedChange = -minSpeed*4;
-            }
-            else if ((speeds[index] >= (maxSpeed*0.5)) && (Math.floor(Math.random() * 10)%3)){
+            }*/
+            else if ((speeds[index] >= (maxSpeed*0.8)) && (Math.floor(Math.random() * 10)%3)){
                 speedChange = (Math.random() - 1) * 0.5;
             } else {
                 // Adjust speed randomly
                 speedChange = (Math.random() - 0.5) * 0.5;
             }
 
-            if(Math.floor(Math.random() * 10)%1) {
-                speedChange = Math.random();
-            }
+            
             //console.log(speedChange);
             speeds[index] = Math.max(minSpeed, Math.min(speeds[index] + speedChange, maxSpeed));
             //console.log(speeds[index]);
@@ -359,7 +357,7 @@ function createControls() {
                 const nameInput = document.createElement('input');
                 nameInput.placeholder = `Player ${i + 1} Name`;
                 nameInput.classList.add('player-name');
-                nameInput.value = getRandomName(); // Assign a random name
+                //nameInput.value = getRandomName(); // Assign a random name
                 playerDiv.appendChild(nameInput);
 
                 const imageInput = document.createElement('input');
@@ -397,7 +395,7 @@ function createControls() {
             const backgroundColor = colorInput.value || getRandomColor();
 
             players.push({
-                name: name || `Default Player ${players.length + 1}`,
+                name: name || getRandomName(),
                 image,
                 backgroundColor
             });
