@@ -129,7 +129,7 @@ function movePlayers() {
             let position = currentPositions[index].position; // Get current left position
             
             if ((speeds[index] <= (minSpeed*2)) && (Math.floor(Math.random() * 5)%1)) {
-                speedChange = minSpeed*2 + (Math.random()) * 0.5;
+                speedChange = minSpeed*3 + (Math.random()) * 0.5;
             }
             else if ((speeds[index] <= (minSpeed*2.5)) && (Math.floor(Math.random() * 5)%1)) {
                 speedChange = minSpeed + (Math.random()) * 0.5;
@@ -154,8 +154,14 @@ function movePlayers() {
             if (position >= finishLine) {
                 position = finishLine; // Stop at the adjusted finish line
                 finished[index] = true; // Mark as finished
+                console.log(index);
                 finishedCount++;
                 placements.push(player.name); // Add to placements
+                const placement = finishedCount;
+                const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
+                const positionLabel = document.getElementsByClassName('player-container')[index].querySelector('.player-position-label');
+                positionLabel.innerText = `${placement}${suffix}`; // Update position label
+                //console.log(player.positionLabel.innerText);
                 console.log(`${player.name} has finished!`);
 
                 // Show the placements when all players have finished
@@ -196,15 +202,13 @@ function showRaceResults() {
     alert(`Race finished!\n${resultMessage}`); // Show results in alert
 }*/
 function endRace() {
-    showStandings()
+    showStandings();
+
     toggleControls(true); // Show the controls
 }
 
 function showStandings() {
-    /*if (placements.length === 0) {
-        alert('No standings available yet. Complete a race first.');
-        return;
-    }*/
+
     const standingsDiv = document.createElement('div');
     standingsDiv.style.position = 'fixed';
     standingsDiv.style.top = '50%';
@@ -248,6 +252,7 @@ function showStandings() {
     standingsDiv.appendChild(copyButton); // Add the copy button
     standingsDiv.appendChild(closeButton);
     document.body.appendChild(standingsDiv);
+    console.log(placements);
 }
 
 function toggleControls(visible) {
