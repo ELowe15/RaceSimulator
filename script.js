@@ -5,7 +5,7 @@ let raceTime; // Default race duration
 let speeds = [];
 let finished = []; // Array to track whether a player has finished
 let finishedCount = 0; // Variable to keep track of how many players have finished
-
+let prevPlayerCount = 0;
 // Default player and background images (dynamic references)
 const defaultPlayerImage = 'bballHollow.png'; // Default to bball.png
 const backgroundImage = 'bball_court.jfif'; // Change file extension as needed
@@ -92,6 +92,7 @@ function createPlayerElement(player, index) {
 // Start the race
 function startRace() {
     toggleControls(false); // Hide the controls
+    togglePlayerList(false)
     finishedCount = 0;
     placements.length = 0; // Clear previous placements
     speeds = [];
@@ -113,7 +114,7 @@ function startRace() {
 
 // Move players
 function movePlayers() {
-    const finishLine = window.innerWidth - 180; // Adjust finish line to the left by 20 pixels
+    const finishLine = window.innerWidth - 210; // Adjust finish line to the left by 20 pixels
     const maxSpeed = 5*10/raceTime; // Maximum speed for the players
     const minSpeed = 1*10/raceTime; // Minimum speed for the players
     // Store the current positions and their corresponding indices
@@ -126,15 +127,18 @@ function movePlayers() {
         if (!finished[index]) {
             const playerContainer = document.getElementsByClassName('player-container')[index]; // Select the container
             let position = currentPositions[index].position; // Get current left position
-
-            if ((speeds[index] <= (minSpeed*2.5)) && (Math.floor(Math.random() * 5)%1)) {
-                speedChange = minSpeed + (Math.random()) * 0.5;;
+            
+            if ((speeds[index] <= (minSpeed*2)) && (Math.floor(Math.random() * 5)%1)) {
+                speedChange = minSpeed*2 + (Math.random()) * 0.5;
+            }
+            else if ((speeds[index] <= (minSpeed*2.5)) && (Math.floor(Math.random() * 5)%1)) {
+                speedChange = minSpeed + (Math.random()) * 0.5;
             }
             /*else if ((speeds[index] >= (maxSpeed*0.7)) && (Math.floor(Math.random() * 10)%3)){
                 speedChange = -minSpeed*4;
             }*/
-            else if ((speeds[index] >= (maxSpeed*0.8)) && (Math.floor(Math.random() * 10)%3)){
-                speedChange = (Math.random() - 1) * 0.5;
+            else if ((speeds[index] >= (maxSpeed*0.8)) && (Math.floor(Math.random() * 10)%2)){
+                speedChange = (Math.random() - 1) * 0.5 - minSpeed;
             } else {
                 // Adjust speed randomly
                 speedChange = (Math.random() - 0.5) * 0.5;
@@ -253,7 +257,15 @@ function toggleControls(visible) {
     }
 }
 
-// Save settings to local storage
+function togglePlayerList(visible) {
+    //const playerList = playerInputsDiv
+    if (playerInputsDiv) {
+        //console.log(1)
+        playerInputsDiv.style.display = visible ? 'block' : 'none'; // Show or hide based on the visible flag
+    }
+}
+
+/* Save settings to local storage
 function saveSettings() {
     const settings = {
         players: players.map(player => ({ name: player.name, image: player.image, backgroundColor: player.backgroundColor })), // Include background color
@@ -277,11 +289,58 @@ function loadSettings() {
         alert('No saved settings found.');
     }
 }
+*/
+
+function updatePlayerList() {
+    if (document.getElementById('numberOfPlayers')){
+        const numberInput = document.getElementById('numberOfPlayers');
+        const numPlayers = parseInt(numberInput.value, 10);
+            if (numPlayers > prevPlayerCount) {
+                //players = []; // Clear existing players
+            // const playerInputsDiv = document.getElementById('playerInputs');
+            // playerInputsDiv.innerHTML = ''; // Clear previous inputs
+
+                for (let i = prevPlayerCount; i < numPlayers; i++) {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.classList.add('player-input');
+
+                    const nameInput = document.createElement('input');
+                    nameInput.placeholder = `Player ${i + 1} Name`;
+                    nameInput.classList.add('player-name');
+                    //nameInput.value = getRandomName(); // Assign a random name
+                    playerDiv.appendChild(nameInput);
+
+                    const imageInput = document.createElement('input');
+                    imageInput.type = 'file';
+                    imageInput.accept = 'image/*'; // Accept any image type
+                    imageInput.classList.add('player-image');
+                    playerDiv.appendChild(imageInput);
+
+                    // Add background color input
+                    const colorInput = document.createElement('input');
+                    colorInput.type = 'color';
+                    colorInput.value = getRandomColor(); // Assign random background color
+                    colorInput.classList.add('player-color');
+                    playerDiv.appendChild(colorInput);
+
+                    playerInputsDiv.appendChild(playerDiv);
+                }
+            }
+            else if (numPlayers < prevPlayerCount){
+                console.log()
+                for (let i = prevPlayerCount - 1; i >= numPlayers; i--) {
+                playerInputsDiv.removeChild(playerInputsDiv.children[i]);
+                }
+            }
+            prevPlayerCount = numPlayers;
+        }
+}
 
 // Create controls for player input
 function createControls() {
     const controlsDiv = document.createElement('div');
     controlsDiv.classList.add('controls');
+    
 
     /*// Race type drop-down
     const raceTypeLabel = document.createElement('label');
@@ -322,7 +381,7 @@ function createControls() {
     const raceTimeInput = document.createElement('input');
     raceTimeInput.id = 'raceTime';
     raceTimeInput.type = 'number';
-    raceTimeInput.value = 10;
+    raceTimeInput.value = 1;
     raceTimeInput.min = 1;
     raceTimeInput.placeholder = 'Race Duration (seconds)';
     controlsDiv.appendChild(raceTimeInput);
@@ -339,43 +398,19 @@ function createControls() {
     numberInput.placeholder = 'Number of Players';
     numberInput.min = 1;
     numberInput.value = 12; // Default number of players
+    // Add an event listener to detect changes to the number of players
+    numberInput.addEventListener('input', () => {
+        updatePlayerList();
+    });
     controlsDiv.appendChild(numberInput);
 
     const playerListButton = document.createElement('button');
     playerListButton.innerText = 'Player List';
+    //updatePlayerList();
+    let visible = true;
     playerListButton.onclick = () => {
-        const numPlayers = parseInt(numberInput.value);
-        if (numPlayers > 0) {
-            players = []; // Clear existing players
-            const playerInputsDiv = document.getElementById('playerInputs');
-            playerInputsDiv.innerHTML = ''; // Clear previous inputs
-
-            for (let i = 0; i < numPlayers; i++) {
-                const playerDiv = document.createElement('div');
-                playerDiv.classList.add('player-input');
-
-                const nameInput = document.createElement('input');
-                nameInput.placeholder = `Player ${i + 1} Name`;
-                nameInput.classList.add('player-name');
-                //nameInput.value = getRandomName(); // Assign a random name
-                playerDiv.appendChild(nameInput);
-
-                const imageInput = document.createElement('input');
-                imageInput.type = 'file';
-                imageInput.accept = 'image/*'; // Accept any image type
-                imageInput.classList.add('player-image');
-                playerDiv.appendChild(imageInput);
-
-                // Add background color input
-                const colorInput = document.createElement('input');
-                colorInput.type = 'color';
-                colorInput.value = getRandomColor(); // Assign random background color
-                colorInput.classList.add('player-color');
-                playerDiv.appendChild(colorInput);
-
-                playerInputsDiv.appendChild(playerDiv);
-            }
-        }
+        togglePlayerList(visible);
+        visible = !visible;
     };
     controlsDiv.appendChild(playerListButton);
 
@@ -407,10 +442,14 @@ function createControls() {
         }
 
         // Clear previous player elements and create new ones
-        document.body.innerHTML = ''; // Clear existing players
-        initializeUI(); // Retain controls
-        players.forEach((player, index) => createPlayerElement(player, index));
-        raceTime = parseInt(raceTimeInput.value, 10)
+        //document.body.innerHTML = ''; // Clear existing players
+        //initializeUI(); // Retain controls
+        // Clear only player elements, not the entire body
+        const playerContainers = document.querySelectorAll('.player-container');
+        playerContainers.forEach((playerContainer) => playerContainer.remove());
+
+        // Keep the controls visible, only refresh the player elements
+        players.forEach((player, index) => createPlayerElement(player, index));        raceTime = parseInt(raceTimeInput.value, 10)
         //console.log("here");
         startRace();
     };
@@ -438,11 +477,18 @@ function createControls() {
 
 // Initialize UI
 function initializeUI() {
-    const playerInputsDiv = document.createElement('div');
-    playerInputsDiv.id = 'playerInputs';
-    document.body.appendChild(playerInputsDiv);
-
-    createControls(); // Create controls
+    // Create controls and player inputs once
+    if (!document.getElementById('controls')) {
+        createControls();
+    }
+    // Create player inputs div (player list) only once
+    if (!document.getElementById('playerInputs')) {
+        playerInputsDiv = document.createElement('div');
+        playerInputsDiv.id = 'playerInputs';
+        document.body.appendChild(playerInputsDiv);
+        updatePlayerList();
+        togglePlayerList(false);
+    }
 }
 
 // Start the application
