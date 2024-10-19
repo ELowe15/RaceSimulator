@@ -6,6 +6,8 @@ let speeds = [];
 let finished = []; // Array to track whether a player has finished
 let finishedCount = 0; // Variable to keep track of how many players have finished
 let prevPlayerCount = 0;
+// Placeholder for standings
+let standingsCreated = false;
 // Default player and background images (dynamic references)
 const defaultPlayerImage = 'bballHollow.png'; // Default to bball.png
 const backgroundImage = 'bball_court.jfif'; // Change file extension as needed
@@ -92,7 +94,8 @@ function createPlayerElement(player, index) {
 // Start the race
 function startRace() {
     toggleControls(false); // Hide the controls
-    togglePlayerList(false)
+    togglePlayerList(false);
+    deleteStandings();
     finishedCount = 0;
     placements.length = 0; // Clear previous placements
     speeds = [];
@@ -203,13 +206,22 @@ function showRaceResults() {
 }*/
 function endRace() {
     showStandings();
-
     toggleControls(true); // Show the controls
 }
 
-function showStandings() {
+function deleteStandings(){
+    if (document.getElementById('standingsDiv')){
+        document.getElementById('standingsDiv').remove();
+    }
+}
 
+function showStandings() {
+    if (document.getElementById('standingsDiv')){
+        deleteStandings();
+        return;
+    }
     const standingsDiv = document.createElement('div');
+    standingsDiv.id = 'standingsDiv';
     standingsDiv.style.position = 'fixed';
     standingsDiv.style.top = '50%';
     standingsDiv.style.left = '50%';
