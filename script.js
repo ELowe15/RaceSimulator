@@ -96,6 +96,7 @@ function startRace() {
     toggleControls(false); // Hide the controls
     togglePlayerList(false);
     deleteStandings();
+    //Restart and play music
     audio.pause();         // Pause the music
     audio.currentTime = 0; // Reset the music to the beginning
     audio.play();
