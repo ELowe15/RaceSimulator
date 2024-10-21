@@ -11,6 +11,7 @@ let standingsCreated = false;
 // Default player and background images (dynamic references)
 const defaultPlayerImage = 'bballHollow.png'; // Default to bball.png
 const backgroundImage = 'bball_court.jfif'; // Change file extension as needed
+const audio = new Audio('basketball.mp4');
 
 // Function to shuffle an array
 function shuffleArray(array) {
@@ -90,12 +91,14 @@ function createPlayerElement(player, index) {
     return playerDiv;
 }
 
-
 // Start the race
 function startRace() {
     toggleControls(false); // Hide the controls
     togglePlayerList(false);
     deleteStandings();
+    audio.pause();         // Pause the music
+    audio.currentTime = 0; // Reset the music to the beginning
+    audio.play();
     finishedCount = 0;
     placements.length = 0; // Clear previous placements
     speeds = [];
@@ -132,7 +135,7 @@ function movePlayers() {
             let position = currentPositions[index].position; // Get current left position
             
             if ((speeds[index] <= (minSpeed*2)) && (Math.floor(Math.random() * 5)%1)) {
-                speedChange = minSpeed*3 + (Math.random()) * 0.5;
+                speedChange = minSpeed*3;
             }
             else if ((speeds[index] <= (minSpeed*2.5)) && (Math.floor(Math.random() * 5)%1)) {
                 speedChange = minSpeed + (Math.random()) * 0.5;
@@ -141,7 +144,7 @@ function movePlayers() {
                 speedChange = -minSpeed*4;
             }*/
             else if ((speeds[index] >= (maxSpeed*0.8)) && (Math.floor(Math.random() * 10)%2)){
-                speedChange = (Math.random() - 1) * 0.5 - minSpeed;
+                speedChange = (Math.random() - 1) * 0.5 - minSpeed*1.5;
             } else {
                 // Adjust speed randomly
                 speedChange = (Math.random() - 0.5) * 0.5;
@@ -391,7 +394,7 @@ function createControls() {
 
     // Create race time label and input
     const raceTimeLabel = document.createElement('label');
-    raceTimeLabel.textContent = 'Race Time (seconds):';
+    raceTimeLabel.textContent = 'Approximate Race Time (seconds):';
     controlsDiv.appendChild(raceTimeLabel);
 
     // Input for race duration
