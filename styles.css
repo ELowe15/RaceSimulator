@@ -49,7 +49,7 @@ body {
     z-index: 1000;
     background-color: rgba(20, 20, 20, 0.8); /* Darker background */
     padding: 20px;
-    border: 1px solid #ff6a00; /* Orange border */
+    border: 2px solid #ff6a00; /* Orange border */
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     display: flex;
@@ -87,13 +87,44 @@ body {
 
 .player-list {
     background-color: rgba(20, 20, 20, 0.8); /* Solid dark background */
-    border: 10px solid #ff6a00; /* Orange border */
+    border: 2px solid #ff6a00; /* Orange border */
     border-radius: 8px; /* Rounded corners */
-    padding: 15px; /* Space inside player list */
-    margin: 20px; /* Space around player list */
+    padding: 10px; /* Space inside player list */
     display: flex; /* Flexbox for player list */
     flex-direction: column; /* Stack players vertically */
-    align-items: flex-start; /* Align players to the start */
-    width: 300px; /* Fixed width for player list */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    width: 350px; /* Fixed width for player list */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+    height: auto; /* Set a height based on content or desired layout */
+
+    /* Center on screen */
+    position: absolute;
+    top: 0%; /* Adjust to control distance from the top */
+    left: 50%;
+    transform: translateX(-50%); /* Center horizontally only */
+}
+
+.player-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid #ff6a00; /* Orange border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 2px; /* Space inside player list */
+    margin: 4px;
+}
+
+.player-name {
+    width: 120px;
+    padding: 5px;
+}
+
+.player-image {
+    width: 100px;
+}
+
+.player-color {
+    width: 50px;
+    height: 30px;
 }

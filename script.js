@@ -6,6 +6,7 @@ let speeds = [];
 let finished = []; // Array to track whether a player has finished
 let finishedCount = 0; // Variable to keep track of how many players have finished
 let prevPlayerCount = 0;
+let playerListContainer; // Reference to player list container
 // Placeholder for standings
 let standingsCreated = false;
 // Default player and background images (dynamic references)
@@ -53,6 +54,15 @@ function getRandomName() {
 // Create a player with a name, image, and background color
 function createPlayer(name, image, backgroundColor) {
     return { name, image, backgroundColor }; // Include background color in the player object
+}
+
+// Function to create player list container
+function createPlayerListContainer() {
+    if (!playerListContainer) { // Only create if it doesn't exist
+        playerListContainer = document.createElement('div');
+        playerListContainer.classList.add('player-list'); // Add the background class
+        document.body.appendChild(playerListContainer); // Append to the body or a specific section
+    }
 }
 
 // Create player element including a color picker for background color
@@ -279,10 +289,8 @@ function toggleControls(visible) {
 }
 
 function togglePlayerList(visible) {
-    //const playerList = playerInputsDiv
-    if (playerInputsDiv) {
-        //console.log(1)
-        playerInputsDiv.style.display = visible ? 'block' : 'none'; // Show or hide based on the visible flag
+    if (playerListContainer) {
+        playerListContainer.style.display = visible ? 'block' : 'none'; // Show or hide based on the visible flag
     }
 }
 
@@ -317,9 +325,6 @@ function updatePlayerList() {
         const numberInput = document.getElementById('numberOfPlayers');
         const numPlayers = parseInt(numberInput.value, 10);
             if (numPlayers > prevPlayerCount) {
-                //players = []; // Clear existing players
-            // const playerInputsDiv = document.getElementById('playerInputs');
-            // playerInputsDiv.innerHTML = ''; // Clear previous inputs
 
                 for (let i = prevPlayerCount; i < numPlayers; i++) {
                     const playerDiv = document.createElement('div');
@@ -344,13 +349,13 @@ function updatePlayerList() {
                     colorInput.classList.add('player-color');
                     playerDiv.appendChild(colorInput);
 
-                    playerInputsDiv.appendChild(playerDiv);
+                    playerListContainer.appendChild(playerDiv);
                 }
             }
             else if (numPlayers < prevPlayerCount){
                 console.log()
                 for (let i = prevPlayerCount - 1; i >= numPlayers; i--) {
-                playerInputsDiv.removeChild(playerInputsDiv.children[i]);
+                    playerListContainer.removeChild(playerListContainer.children[i]);
                 }
             }
             prevPlayerCount = numPlayers;
@@ -402,7 +407,7 @@ function createControls() {
     const raceTimeInput = document.createElement('input');
     raceTimeInput.id = 'raceTime';
     raceTimeInput.type = 'number';
-    raceTimeInput.value = 1;
+    raceTimeInput.value = 15;
     raceTimeInput.min = 1;
     raceTimeInput.placeholder = 'Race Duration (seconds)';
     controlsDiv.appendChild(raceTimeInput);
@@ -504,9 +509,8 @@ function initializeUI() {
     }
     // Create player inputs div (player list) only once
     if (!document.getElementById('playerInputs')) {
-        playerInputsDiv = document.createElement('div');
-        playerInputsDiv.id = 'playerInputs';
-        document.body.appendChild(playerInputsDiv);
+        createPlayerListContainer();
+
         updatePlayerList();
         togglePlayerList(false);
     }
