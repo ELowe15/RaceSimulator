@@ -6,8 +6,9 @@ const BASEBALL = 3;
 // Default player and background images (dynamic references)
 const defaultPlayerImage = ['bballHollow.png', 'fballHollow.png','puck.png', 'baseballHollow.png']; // Default to bball.png
 const backgroundImage = ['bball_court.jfif', 'fball_field.jpg', 'rink.jpg','baseball_diamond.jfif']; // Change file extension as needed
-const songs = ['basketball.mp4', 'NFLonFox.mp4','goodOlHockey.mp4']
-let audio = new Audio(songs[0]);
+const songs = ['basketball.mp4', 'NFLonFox.mp4','HockeyNight.mp4']
+let audio = new Audio();
+let isSongSelected = false;
 
 let players = []; // Array to store player data
 const placements = []; // To track the order in which players finish
@@ -119,7 +120,9 @@ function startRace() {
     deleteStandings();
     let selectedIndex = document.getElementById('sportSelect').selectedIndex;
     // Update the audio source based on the selected index
-    audio.src = songs[selectedIndex];
+    if(!isSongSelected){
+        audio.src = songs[selectedIndex];
+    }
     audio.load();
     //Restart and play music
     audio.pause();         // Pause the music
@@ -520,6 +523,34 @@ function createControls() {
         showStandings();
     };
     controlsDiv.appendChild(standingsButton);
+
+    // Create the button and file input elements
+    const loadMusicButton = document.createElement('button');
+    loadMusicButton.innerText = 'Load Music';
+    loadMusicButton.style.marginTop = '10px'; // Adds some space above the button
+
+    const musicFileInput = document.createElement('input');
+    musicFileInput.type = 'file';
+    musicFileInput.accept = 'audio/*,video/mp4'; // Accepts audio files and .mp4 files
+    musicFileInput.style.display = 'none'; // Hides the input element
+
+    // Append the button to your control div or desired container
+    controlsDiv.appendChild(loadMusicButton);
+    controlsDiv.appendChild(musicFileInput);
+
+    // Event listener to trigger the file input when the button is clicked
+    loadMusicButton.addEventListener('click', () => {
+        musicFileInput.click();
+    });
+
+    // Event listener to handle the music file selection
+    musicFileInput.addEventListener('change', () => {
+        const file = musicFileInput.files[0];
+        if (file) {
+            audio.src = URL.createObjectURL(file);
+            isSongSelected = true;
+        }
+    });
 
     /*const saveButton = document.createElement('button');
     saveButton.innerText = 'Save Settings';
