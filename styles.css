@@ -128,3 +128,29 @@ body {
     width: 50px;
     height: 30px;
 }
+
+/* General styling for dropdown */
+.styled-dropdown {
+    background-color: rgba(20, 20, 20, 0.8); /* Dark semi-transparent background */
+    color: #ffffff; /* White text color */
+    padding: 8px 40px 8px 10px; /* Padding inside dropdown */
+    border: 2px solid #ff6a00; /* Orange border to match theme */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    width: 150px; /* Adjust width as needed */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+    cursor: pointer; /* Pointer cursor */
+}
+
+/* Style to keep the border color consistent on focus */
+.styled-dropdown:focus {
+    border-color: #ff6a00; /* Ensures the border color stays orange */
+    outline: none;
+}
+
+/* Style dropdown options */
+.styled-dropdown option {
+    background-color: rgba(20, 20, 20, 0.9); /* Dark background for options */
+    color: white; /* White text color */
+    padding: 8px; /* Padding inside options */
+}

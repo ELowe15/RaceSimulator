@@ -409,6 +409,7 @@ function createControls() {
 
     // Dropdown for sports selection
     const sportSelect = document.createElement('select');
+    sportSelect.classList.add("styled-dropdown");
     sportSelect.id = 'sportSelect';
     const sports = ['Basketball', 'Football', 'Hockey', 'Baseball'];
     sports.forEach(sport => {
