@@ -1,3 +1,14 @@
+const BASKETBALL = 0;
+const FOOTBALL = 1;
+const HOCKEY = 2;
+const BASEBALL = 3;
+
+// Default player and background images (dynamic references)
+const defaultPlayerImage = ['bballHollow.png', 'fballHollow.png','puck.png', 'baseballHollow.png']; // Default to bball.png
+const backgroundImage = ['bball_court.jfif', 'fball_field.jpg', 'rink.jpg','baseball_diamond.jfif']; // Change file extension as needed
+const songs = ['basketball.mp4', 'NFLonFox.mp4','goodOlHockey.mp4']
+let audio = new Audio(songs[0]);
+
 let players = []; // Array to store player data
 const placements = []; // To track the order in which players finish
 
@@ -9,10 +20,6 @@ let prevPlayerCount = 0;
 let playerListContainer; // Reference to player list container
 // Placeholder for standings
 let standingsCreated = false;
-// Default player and background images (dynamic references)
-const defaultPlayerImage = 'bballHollow.png'; // Default to bball.png
-const backgroundImage = 'bball_court.jfif'; // Change file extension as needed
-const audio = new Audio('basketball.mp4');
 
 // Function to shuffle an array
 function shuffleArray(array) {
@@ -50,6 +57,10 @@ function getRandomName() {
     return names[Math.floor(Math.random() * names.length)];
 }
 
+function changeBackground(){
+    let background = backgroundImage[document.getElementById('sportSelect').selectedIndex]
+    document.body.style.backgroundImage = `url('${background}')`;
+}
 
 // Create a player with a name, image, and background color
 function createPlayer(name, image, backgroundColor) {
@@ -106,6 +117,10 @@ function startRace() {
     toggleControls(false); // Hide the controls
     togglePlayerList(false);
     deleteStandings();
+    let selectedIndex = document.getElementById('sportSelect').selectedIndex;
+    // Update the audio source based on the selected index
+    audio.src = songs[selectedIndex];
+    audio.load();
     //Restart and play music
     audio.pause();         // Pause the music
     audio.currentTime = 0; // Reset the music to the beginning
@@ -321,10 +336,13 @@ function loadSettings() {
 */
 
 function updatePlayerList() {
+    console.log("uodate");
     if (document.getElementById('numberOfPlayers')){
         const numberInput = document.getElementById('numberOfPlayers');
         const numPlayers = parseInt(numberInput.value, 10);
+        console.log("update 2" + numPlayers);
             if (numPlayers > prevPlayerCount) {
+                console.log("update 3" + numPlayers);
 
                 for (let i = prevPlayerCount; i < numPlayers; i++) {
                     const playerDiv = document.createElement('div');
@@ -352,13 +370,19 @@ function updatePlayerList() {
                     playerListContainer.appendChild(playerDiv);
                 }
             }
+            else if (numPlayers == 0){
+                return;
+            }
             else if (numPlayers < prevPlayerCount){
-                console.log()
+                console.log("else");
                 for (let i = prevPlayerCount - 1; i >= numPlayers; i--) {
                     playerListContainer.removeChild(playerListContainer.children[i]);
                 }
             }
-            prevPlayerCount = numPlayers;
+            if (numPlayers){
+                console.log("update 4" + numPlayers);
+                prevPlayerCount = numPlayers;
+            }
         }
 }
 
@@ -381,13 +405,22 @@ function createControls() {
     });
     controlsDiv.appendChild(raceTypeLabel);
     controlsDiv.appendChild(raceTypeSelect);
+*/
+    // Container div for label and select dropdown
+    const sportContainer = document.createElement('div');
+    sportContainer.style.display = 'flex';
+    sportContainer.style.alignItems = 'center';
+    sportContainer.style.gap = '5px'; // Add space between label and dropdown if needed
+    sportContainer.style.marginBottom = '10px'; // Space below the dropdown
 
-    // Drop-down for sports selection
+    // Label for sport selection
     const sportLabel = document.createElement('label');
     sportLabel.innerText = 'Select Sport: ';
-    controlsDiv.appendChild(sportLabel);
+    sportContainer.appendChild(sportLabel);
 
+    // Dropdown for sports selection
     const sportSelect = document.createElement('select');
+    sportSelect.id = 'sportSelect';
     const sports = ['Basketball', 'Football', 'Hockey', 'Baseball'];
     sports.forEach(sport => {
         const option = document.createElement('option');
@@ -395,8 +428,16 @@ function createControls() {
         option.innerText = sport;
         sportSelect.appendChild(option);
     });
-    controlsDiv.appendChild(sportSelect);
-    */
+    sportContainer.appendChild(sportSelect);
+
+    // Listen for changes to the selected sport
+    sportSelect.addEventListener('change', () => {
+        console.log("Selected Sport:", document.getElementById('sportSelect').selectedIndex); // Logs the selected sport to the console
+        changeBackground();
+    });
+
+    // Append the container to the controls div
+    controlsDiv.appendChild(sportContainer);
 
     // Create race time label and input
     const raceTimeLabel = document.createElement('label');
@@ -452,7 +493,7 @@ function createControls() {
             const colorInput = div.querySelector('.player-color');
             const name = nameInput.value.trim();
             const imageFile = imageInput.files[0];
-            const image = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage;
+            const image = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage[document.getElementById('sportSelect').selectedIndex];
             const backgroundColor = colorInput.value || getRandomColor();
 
             players.push({
@@ -464,19 +505,15 @@ function createControls() {
 
         // Ensure the number of players matches the input
         while (players.length < parseInt(numberInput.value)) {
-            players.push(createPlayer(getRandomName(), defaultPlayerImage, getRandomColor())); // Add random background color
+            players.push(createPlayer(getRandomName(), defaultPlayerImage[document.getElementById('sportSelect').selectedIndex], getRandomColor())); // Add random background color
         }
 
-        // Clear previous player elements and create new ones
-        //document.body.innerHTML = ''; // Clear existing players
-        //initializeUI(); // Retain controls
         // Clear only player elements, not the entire body
         const playerContainers = document.querySelectorAll('.player-container');
         playerContainers.forEach((playerContainer) => playerContainer.remove());
 
         // Keep the controls visible, only refresh the player elements
         players.forEach((player, index) => createPlayerElement(player, index));        raceTime = parseInt(raceTimeInput.value, 10)
-        //console.log("here");
         startRace();
     };
     controlsDiv.appendChild(startButton);
