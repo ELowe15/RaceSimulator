@@ -177,23 +177,19 @@ function movePlayers() {
             }
 
             
-            //console.log(speedChange);
             speeds[index] = Math.max(minSpeed, Math.min(speeds[index] + speedChange, maxSpeed));
-            //console.log(speeds[index]);
             position += speeds[index]; // Update position based on speed
 
             // Check for finish line
             if (position >= finishLine) {
                 position = finishLine; // Stop at the adjusted finish line
                 finished[index] = true; // Mark as finished
-                console.log(index);
                 finishedCount++;
                 placements.push(player.name); // Add to placements
                 const placement = finishedCount;
                 const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
                 const positionLabel = document.getElementsByClassName('player-container')[index].querySelector('.player-position-label');
                 positionLabel.innerText = `${placement}${suffix}`; // Update position label
-                //console.log(player.positionLabel.innerText);
                 console.log(`${player.name} has finished!`);
 
                 // Show the placements when all players have finished
@@ -293,7 +289,6 @@ function showStandings() {
     standingsDiv.appendChild(copyButton); // Add the copy button
     standingsDiv.appendChild(closeButton);
     document.body.appendChild(standingsDiv);
-    console.log(placements);
 }
 
 function toggleControls(visible) {
@@ -336,14 +331,10 @@ function loadSettings() {
 */
 
 function updatePlayerList() {
-    console.log("uodate");
     if (document.getElementById('numberOfPlayers')){
         const numberInput = document.getElementById('numberOfPlayers');
         const numPlayers = parseInt(numberInput.value, 10);
-        console.log("update 2" + numPlayers);
             if (numPlayers > prevPlayerCount) {
-                console.log("update 3" + numPlayers);
-
                 for (let i = prevPlayerCount; i < numPlayers; i++) {
                     const playerDiv = document.createElement('div');
                     playerDiv.classList.add('player-input');
@@ -374,13 +365,11 @@ function updatePlayerList() {
                 return;
             }
             else if (numPlayers < prevPlayerCount){
-                console.log("else");
                 for (let i = prevPlayerCount - 1; i >= numPlayers; i--) {
                     playerListContainer.removeChild(playerListContainer.children[i]);
                 }
             }
             if (numPlayers){
-                console.log("update 4" + numPlayers);
                 prevPlayerCount = numPlayers;
             }
         }
@@ -432,7 +421,6 @@ function createControls() {
 
     // Listen for changes to the selected sport
     sportSelect.addEventListener('change', () => {
-        console.log("Selected Sport:", document.getElementById('sportSelect').selectedIndex); // Logs the selected sport to the console
         changeBackground();
     });
 
@@ -451,6 +439,11 @@ function createControls() {
     raceTimeInput.value = 15;
     raceTimeInput.min = 1;
     raceTimeInput.placeholder = 'Race Duration (seconds)';
+    raceTimeInput.addEventListener('input', () => {
+        if (raceTimeInput.value === '0') {
+            raceTimeInput.value = '1';
+        }
+    });
     controlsDiv.appendChild(raceTimeInput);
 
     // Create number of players label and input
@@ -467,13 +460,15 @@ function createControls() {
     numberInput.value = 12; // Default number of players
     // Add an event listener to detect changes to the number of players
     numberInput.addEventListener('input', () => {
+        if (numberInput.value === '0') {
+            numberInput.value = prevPlayerCount;
+        }
         updatePlayerList();
     });
     controlsDiv.appendChild(numberInput);
 
     const playerListButton = document.createElement('button');
     playerListButton.innerText = 'Player List';
-    //updatePlayerList();
     let visible = true;
     playerListButton.onclick = () => {
         togglePlayerList(visible);
