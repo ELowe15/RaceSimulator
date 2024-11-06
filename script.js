@@ -87,7 +87,7 @@ const BASEBALL = 3;
 
 // Default player and background images (dynamic references)
 const defaultPlayerImage = ['bballHollow.png', 'fballHollow.png','puck.png', 'baseballHollow.png']; // Default to bball.png
-const backgroundImage = ['bball_court.jfif', 'fball_field.jpg', 'rink.jpg','baseball_diamond.jfif']; // Change file extension as needed
+const backgroundImage = ['bball_court.jpg', 'fball_field.jpg', 'rink.jpg','baseball_diamond.jfif']; // Change file extension as needed
 const songs = ['basketball.mp4', 'NFLonFox.mp4', 'HockeyNight.mp4', 'shipping.mp4']
 let audio = new Audio();
 let isSongSelected = false;
@@ -145,6 +145,12 @@ function createPlayerListContainer() {
         playerListContainer.classList.add('player-list'); // Add the background class
         document.body.appendChild(playerListContainer); // Append to the body or a specific section
     }
+}
+
+function loadPlayerList(players){
+    playerListContainer.innerHTML = '';  // Clear the container
+    prevPlayerCount = 0;
+    updatePlayerList(players);
 }
 
 // Create player element including a color picker for background color
@@ -292,16 +298,6 @@ function movePlayers() {
     }
 }
 
-/* Function to display race results
-function showRaceResults() {
-    const resultMessage = placements.map((playerName, index) => {
-        const placement = index + 1; // Get placement (1st, 2nd, etc.)
-        const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
-        return `${placement}${suffix}: ${playerName}`; // Format the message
-    }).join('\n'); // Join results with new lines
-
-    alert(`Race finished!\n${resultMessage}`); // Show results in alert
-}*/
 function endRace() {
     showStandings();
     toggleControls(true); // Show the controls
@@ -377,33 +373,104 @@ function togglePlayerList(visible) {
     }
 }
 
-/* Save settings to local storage
-function saveSettings() {
-    const settings = {
-        players: players.map(player => ({ name: player.name, image: player.image, backgroundColor: player.backgroundColor })), // Include background color
-        raceDuration
-    };
-    localStorage.setItem('fantasyRaceSettings', JSON.stringify(settings));
-    alert('Settings saved!');
+// Convert file to Base64
+async function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
 }
 
-// Load settings from local storage
-function loadSettings() {
-    const savedSettings = localStorage.getItem('fantasyRaceSettings');
-    if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        players = settings.players.map(player => createPlayer(player.name, player.image, player.backgroundColor)); // Include background color
-        raceDuration = settings.raceDuration;
-        document.getElementById('raceTime').value = raceDuration; // Update race duration input
-        initializeUI(); // Re-initialize UI with loaded settings
-        players.forEach((player, index) => createPlayerElement(player, index));
-    } else {
-        alert('No saved settings found.');
+async function saveSettings() {
+    // Gather player list data with Base64 image encoding
+    const playerListData = [];
+
+    for (let player of playerListContainer.children) {
+        const name = player.querySelector('.player-name').value.trim();
+        const imageFile = player.querySelector('.player-image').files[0];
+        const backgroundColor = player.querySelector('.player-color').value;
+
+        let image = null;
+        if (imageFile) {
+            image = await fileToBase64(imageFile); // Convert image to Base64
+        }
+
+        playerListData.push({ name, image, backgroundColor });
+    }
+
+    // Gather all settings data
+    const settings = {
+        players: playerListData,
+        raceType: document.getElementById('raceTypeSelect').value,
+        sport: document.getElementById('sportSelect').value,
+        raceDuration: document.getElementById('raceTime').value,
+        numberOfPlayers: document.getElementById('numberOfPlayers').value,
+        musicFile: isSongSelected ? audio.src : null
+    };
+
+    try {
+        // Use the file picker to allow the user to save the file where they want
+        const fileHandle = await window.showSaveFilePicker({
+            suggestedName: 'Race_Settings.json',
+            types: [{
+                description: 'JSON File',
+                accept: { 'application/json': ['.json'] }
+            }]
+        });
+
+        // Create a writable stream and write the settings to the file
+        const writableStream = await fileHandle.createWritable();
+        await writableStream.write(JSON.stringify(settings, null, 2));
+        await writableStream.close();
+        
+        //alert(`Settings saved successfully!`);
+    } catch (err) {
+        console.error("Error saving settings:", err);
+        //alert("Failed to save settings.");
     }
 }
-*/
 
-function updatePlayerList() {
+async function loadSettings() {
+    try {
+        // Open file picker for user to select a JSON file
+        const [fileHandle] = await window.showOpenFilePicker({
+            types: [{
+                description: 'JSON Files',
+                accept: { 'application/json': ['.json'] }
+            }]
+        });
+
+        // Read and parse the file
+        const file = await fileHandle.getFile();
+        const fileContent = await file.text();
+        const settings = JSON.parse(fileContent);
+
+        // Apply loaded settings
+        document.getElementById('raceTypeSelect').value = settings.raceType;
+        document.getElementById('sportSelect').value = settings.sport;
+        document.getElementById('raceTime').value = settings.raceDuration;
+        document.getElementById('numberOfPlayers').value = settings.numberOfPlayers;
+        changeBackground();
+
+        // Load players into the UI
+        loadPlayerList(settings.players);
+
+        // Load music if saved
+        if (settings.musicFile) {
+            audio.src = settings.musicFile;
+            isSongSelected = true;
+        }
+
+        //alert(`Settings loaded successfully.`);
+    } catch (error) {
+        console.error("Error loading settings:", error);
+        //alert("Failed to load settings.");
+    }
+}
+
+function updatePlayerList(players) {
     if (document.getElementById('numberOfPlayers')){
         const numberInput = document.getElementById('numberOfPlayers');
         const numPlayers = parseInt(numberInput.value, 10);
@@ -414,6 +481,7 @@ function updatePlayerList() {
 
                     const nameInput = document.createElement('input');
                     nameInput.placeholder = `Player ${i + 1} Name`;
+
                     nameInput.classList.add('player-name');
                     //nameInput.value = getRandomName(); // Assign a random name
                     playerDiv.appendChild(nameInput);
@@ -424,12 +492,20 @@ function updatePlayerList() {
                     imageInput.classList.add('player-image');
                     playerDiv.appendChild(imageInput);
 
+                    playerDiv.loadedImage = null;
+
                     // Add background color input
                     const colorInput = document.createElement('input');
                     colorInput.type = 'color';
-                    colorInput.value = getRandomColor(); // Assign random background color
+                    colorInput.value = players ? players[i].backgroundColor: getRandomColor(); // Assign random background color
                     colorInput.classList.add('player-color');
                     playerDiv.appendChild(colorInput);
+
+                    if(players){
+                        nameInput.value = players[i].name;
+                        //console.log(players[i].textContent);
+                        playerDiv.loadedImage = players[i].image;
+                    }
 
                     playerListContainer.appendChild(playerDiv);
                 }
@@ -454,10 +530,11 @@ function createControls() {
     controlsDiv.classList.add('controls');
     
 
-    /*// Race type drop-down
+    // Race type drop-down
     const raceTypeLabel = document.createElement('label');
     raceTypeLabel.innerText = 'Race Type: ';
     const raceTypeSelect = document.createElement('select');
+    raceTypeSelect.id = 'raceTypeSelect';
     const raceTypes = ['Balanced', 'Close', 'Hectic'];
     raceTypes.forEach(type => {
         const option = document.createElement('option');
@@ -467,7 +544,7 @@ function createControls() {
     });
     controlsDiv.appendChild(raceTypeLabel);
     controlsDiv.appendChild(raceTypeSelect);
-*/
+
     // Container div for label and select dropdown
     const sportContainer = document.createElement('div');
     sportContainer.style.display = 'flex';
@@ -561,8 +638,10 @@ function createControls() {
             const imageInput = div.querySelector('.player-image');
             const colorInput = div.querySelector('.player-color');
             const name = nameInput.value.trim();
+            //const imageFile = div.loadedImage ? div.loadedImage : imageInput.files[0];
             const imageFile = imageInput.files[0];
-            const image = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage[document.getElementById('sportSelect').selectedIndex];
+            const defaultImage = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage[document.getElementById('sportSelect').selectedIndex];
+            const image = div.loadedImage ? div.loadedImage : defaultImage; //Check if an image has been loaded
             const backgroundColor = colorInput.value || getRandomColor();
 
             players.push({
@@ -622,7 +701,7 @@ function createControls() {
         }
     });
 
-    /*const saveButton = document.createElement('button');
+    const saveButton = document.createElement('button');
     saveButton.innerText = 'Save Settings';
     saveButton.onclick = saveSettings;
     controlsDiv.appendChild(saveButton);
@@ -630,7 +709,7 @@ function createControls() {
     const loadButton = document.createElement('button');
     loadButton.innerText = 'Load Settings';
     loadButton.onclick = loadSettings;
-    controlsDiv.appendChild(loadButton);*/
+    controlsDiv.appendChild(loadButton);
 
     document.body.appendChild(controlsDiv);
 }
