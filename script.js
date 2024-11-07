@@ -404,6 +404,7 @@ async function saveSettings() {
     const settings = {
         players: playerListData,
         raceType: document.getElementById('raceTypeSelect').value,
+        battleMode: document.getElementById('battleRoyaleToggle').checked,
         sport: document.getElementById('sportSelect').value,
         raceDuration: document.getElementById('raceTime').value,
         numberOfPlayers: document.getElementById('numberOfPlayers').value,
@@ -449,6 +450,7 @@ async function loadSettings() {
 
         // Apply loaded settings
         document.getElementById('raceTypeSelect').value = settings.raceType;
+        document.getElementById('battleRoyaleToggle').checked = settings.battleMode;
         document.getElementById('sportSelect').value = settings.sport;
         document.getElementById('raceTime').value = settings.raceDuration;
         document.getElementById('numberOfPlayers').value = settings.numberOfPlayers;
@@ -529,11 +531,15 @@ function createControls() {
     const controlsDiv = document.createElement('div');
     controlsDiv.classList.add('controls');
     
+    // Container div for label and select dropdown
+    const raceTypeContainer = document.createElement('div');
+    raceTypeContainer.classList.add("control-container");
 
     // Race type drop-down
     const raceTypeLabel = document.createElement('label');
     raceTypeLabel.innerText = 'Race Type: ';
     const raceTypeSelect = document.createElement('select');
+    raceTypeSelect.classList.add("styled-dropdown");
     raceTypeSelect.id = 'raceTypeSelect';
     const raceTypes = ['Balanced', 'Close', 'Hectic'];
     raceTypes.forEach(type => {
@@ -542,15 +548,31 @@ function createControls() {
         option.text = type;
         raceTypeSelect.appendChild(option);
     });
-    controlsDiv.appendChild(raceTypeLabel);
-    controlsDiv.appendChild(raceTypeSelect);
+    raceTypeContainer.appendChild(raceTypeLabel);
+    raceTypeContainer.appendChild(raceTypeSelect);
+    controlsDiv.appendChild(raceTypeContainer);
+
+    // Container div for label and select dropdown
+    const battleContainer = document.createElement('div');
+    battleContainer.classList.add("battle-container");
+
+    // Create the label and checkbox for the toggle
+    const battleLabel = document.createElement('label');
+    battleLabel.classList.add("battle-label");
+    battleLabel.innerText = 'Battle Royale Mode:';
+    
+    const battleToggle = document.createElement('input');
+    battleToggle.classList.add('checkbox');   
+    battleToggle.type = 'checkbox';
+    battleToggle.id = 'battleRoyaleToggle';
+
+    battleContainer.appendChild(battleLabel);
+    battleContainer.appendChild(battleToggle);
+    controlsDiv.appendChild(battleContainer);
 
     // Container div for label and select dropdown
     const sportContainer = document.createElement('div');
-    sportContainer.style.display = 'flex';
-    sportContainer.style.alignItems = 'center';
-    sportContainer.style.gap = '5px'; // Add space between label and dropdown if needed
-    sportContainer.style.marginBottom = '10px'; // Space below the dropdown
+    sportContainer.classList.add("control-container");
 
     // Label for sport selection
     const sportLabel = document.createElement('label');

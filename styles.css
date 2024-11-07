@@ -129,6 +129,62 @@ body {
     height: 30px;
 }
 
+.control-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Spreads out content to full width */
+    gap: 0px;
+    width: 100%; /* Full width */
+    margin: 5px;
+}
+
+/* Container for the label and checkbox */
+.battle-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Aligns items to fill the width */
+    width: 100%; /* Full width */
+    margin: 5px 0; /* Space around the container */
+}
+
+/* Label styling */
+.battle-label {
+    font-size: 16px;
+    color: white;
+    white-space: nowrap; /* Prevent label from breaking into multiple lines */
+    margin-right: 10px; /* Optional: Space between label and checkbox */
+    flex-grow: 1; /* Allow label to grow and take up remaining space */
+}
+
+/* Checkbox styling */
+.checkbox {
+    appearance: none; /* Remove default checkbox styling */
+    width: 20px; /* Custom width */
+    height: 20px; /* Custom height */
+    transform: scale(0.2, 1); /* Scale width and height independently */
+    background-color: rgba(20, 20, 20, 0.8); /* Dark background */
+    border: 2px solid #ff6a00; /* Orange border to match theme */
+    border-radius: 4px;
+    cursor: pointer; /* Pointer cursor */
+    /* Remove any extra space */
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    display: inline-flex; /* To align the checkmark */
+    align-items: center; /* Center checkmark vertically */
+    justify-content: center; /* Center checkmark horizontally */
+    position: relative;
+    margin-left: auto; /* Pushes the checkbox to the right */
+}
+
+.checkbox:checked::before {
+    content: '✓'; /* Checkmark symbol */
+    color: white; /* Color of the checkmark */
+    font-size: 16px; /* Adjust size to fit */
+    font-weight: bold;
+    transform: scale(6.66, 1); /* Scale width and height relative to checkbox */
+}
+
 /* General styling for dropdown */
 .styled-dropdown {
     background-color: rgba(20, 20, 20, 0.8); /* Dark semi-transparent background */
