@@ -526,215 +526,77 @@ function updatePlayerList(players) {
         }
 }
 
-// Create controls for player input
 function createControls() {
-    const controlsDiv = document.createElement('div');
-    controlsDiv.classList.add('controls');
-    
-    // Container div for label and select dropdown
-    const raceTypeContainer = document.createElement('div');
-    raceTypeContainer.classList.add("control-container");
-
-    // Race type drop-down
-    const raceTypeLabel = document.createElement('label');
-    raceTypeLabel.innerText = 'Race Type: ';
-    const raceTypeSelect = document.createElement('select');
-    raceTypeSelect.classList.add("styled-dropdown");
-    raceTypeSelect.id = 'raceTypeSelect';
-    const raceTypes = ['Balanced', 'Close', 'Hectic'];
-    raceTypes.forEach(type => {
-        const option = document.createElement('option');
-        option.value = type;
-        option.text = type;
-        raceTypeSelect.appendChild(option);
+    const playerListButton = document.getElementById('playerListButton');
+    const startButton = document.getElementById('startButton');
+    const standingsButton = document.getElementById('standingsButton');
+    const loadMusicButton = document.getElementById('loadMusicButton');
+    const saveButton = document.getElementById('saveButton');
+    const loadButton = document.getElementById('loadButton');
+    const musicFileInput = document.getElementById('musicFileInput');
+    const battleRoyaleToggle = document.getElementById('battleRoyaleToggle');
+    const raceTypeSelect = document.getElementById('raceTypeSelect');
+    const sportSelect = document.getElementById('sportSelect');
+    const raceTimeInput = document.getElementById('raceTime');
+    const numberInput = document.getElementById('numberOfPlayers');
+  
+    // Event Listeners for buttons
+    playerListButton.addEventListener('click', () => {
+      let visible = true;
+      togglePlayerList(visible);
+      visible = !visible;
     });
-    raceTypeContainer.appendChild(raceTypeLabel);
-    raceTypeContainer.appendChild(raceTypeSelect);
-    controlsDiv.appendChild(raceTypeContainer);
-
-    // Container div for label and select dropdown
-    const battleContainer = document.createElement('div');
-    battleContainer.classList.add("battle-container");
-
-    // Create the label and checkbox for the toggle
-    const battleLabel = document.createElement('label');
-    battleLabel.classList.add("battle-label");
-    battleLabel.innerText = 'Battle Royale Mode:';
-    
-    const battleToggle = document.createElement('input');
-    battleToggle.classList.add('checkbox');   
-    battleToggle.type = 'checkbox';
-    battleToggle.id = 'battleRoyaleToggle';
-
-    battleContainer.appendChild(battleLabel);
-    battleContainer.appendChild(battleToggle);
-    controlsDiv.appendChild(battleContainer);
-
-    // Container div for label and select dropdown
-    const sportContainer = document.createElement('div');
-    sportContainer.classList.add("control-container");
-
-    // Label for sport selection
-    const sportLabel = document.createElement('label');
-    sportLabel.innerText = 'Select Sport: ';
-    sportContainer.appendChild(sportLabel);
-
-    // Dropdown for sports selection
-    const sportSelect = document.createElement('select');
-    sportSelect.classList.add("styled-dropdown");
-    sportSelect.id = 'sportSelect';
-    const sports = ['Basketball', 'Football', 'Hockey', 'Baseball'];
-    sports.forEach(sport => {
-        const option = document.createElement('option');
-        option.value = sport;
-        option.innerText = sport;
-        sportSelect.appendChild(option);
-    });
-    sportContainer.appendChild(sportSelect);
-
-    // Listen for changes to the selected sport
-    sportSelect.addEventListener('change', () => {
-        changeBackground();
-    });
-
-    // Append the container to the controls div
-    controlsDiv.appendChild(sportContainer);
-
-    // Create race time label and input
-    const raceTimeLabel = document.createElement('label');
-    raceTimeLabel.textContent = 'Approximate Race Time (seconds):';
-    controlsDiv.appendChild(raceTimeLabel);
-
-    // Input for race duration
-    const raceTimeInput = document.createElement('input');
-    raceTimeInput.id = 'raceTime';
-    raceTimeInput.type = 'number';
-    raceTimeInput.value = 15;
-    raceTimeInput.min = 1;
-    raceTimeInput.placeholder = 'Race Duration (seconds)';
-    raceTimeInput.addEventListener('input', () => {
-        if (raceTimeInput.value === '0') {
-            raceTimeInput.value = '1';
-        }
-    });
-    controlsDiv.appendChild(raceTimeInput);
-
-    // Create number of players label and input
-    const playersLabel = document.createElement('label');
-    playersLabel.textContent = 'Number of Players:';
-    controlsDiv.appendChild(playersLabel);
-
-    // Number of players input
-    const numberInput = document.createElement('input');
-    numberInput.id = 'numberOfPlayers';
-    numberInput.type = 'number';
-    numberInput.placeholder = 'Number of Players';
-    numberInput.min = 1;
-    numberInput.value = 12; // Default number of players
-    // Add an event listener to detect changes to the number of players
-    numberInput.addEventListener('input', () => {
-        if (numberInput.value === '0') {
-            numberInput.value = prevPlayerCount;
-        }
-        updatePlayerList();
-    });
-    controlsDiv.appendChild(numberInput);
-
-    const playerListButton = document.createElement('button');
-    playerListButton.innerText = 'Player List';
-    let visible = true;
-    playerListButton.onclick = () => {
-        togglePlayerList(visible);
-        visible = !visible;
-    };
-    controlsDiv.appendChild(playerListButton);
-
-    const startButton = document.createElement('button');
-    startButton.innerText = 'Start Race';
-    startButton.onclick = () => {
-        const playerDivs = document.querySelectorAll('.player-input');
-        players = []; // Reset players array
-
-        playerDivs.forEach((div) => {
-            const nameInput = div.querySelector('.player-name');
-            const imageInput = div.querySelector('.player-image');
-            const colorInput = div.querySelector('.player-color');
-            const name = nameInput.value.trim();
-            //const imageFile = div.loadedImage ? div.loadedImage : imageInput.files[0];
-            const imageFile = imageInput.files[0];
-            const defaultImage = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage[document.getElementById('sportSelect').selectedIndex];
-            const image = div.loadedImage ? div.loadedImage : defaultImage; //Check if an image has been loaded
-            const backgroundColor = colorInput.value || getRandomColor();
-
-            players.push({
-                name: name || getRandomName(),
-                image,
-                backgroundColor
-            });
+  
+    startButton.addEventListener('click', () => {
+      const playerDivs = document.querySelectorAll('.player-input');
+      players = [];
+      playerDivs.forEach((div) => {
+        const nameInput = div.querySelector('.player-name');
+        const imageInput = div.querySelector('.player-image');
+        const colorInput = div.querySelector('.player-color');
+        const name = nameInput.value.trim();
+        const imageFile = imageInput.files[0];
+        const defaultImage = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage[sportSelect.selectedIndex];
+        const image = div.loadedImage ? div.loadedImage : defaultImage;
+        const backgroundColor = colorInput.value || getRandomColor();
+        players.push({
+          name: name || getRandomName(),
+          image,
+          backgroundColor
         });
-
-        // Ensure the number of players matches the input
-        while (players.length < parseInt(numberInput.value)) {
-            players.push(createPlayer(getRandomName(), defaultPlayerImage[document.getElementById('sportSelect').selectedIndex], getRandomColor())); // Add random background color
-        }
-
-        // Clear only player elements, not the entire body
-        const playerContainers = document.querySelectorAll('.player-container');
-        playerContainers.forEach((playerContainer) => playerContainer.remove());
-
-        // Keep the controls visible, only refresh the player elements
-        players.forEach((player, index) => createPlayerElement(player, index));        raceTime = parseInt(raceTimeInput.value, 10)
-        startRace();
-    };
-    controlsDiv.appendChild(startButton);
-
-    const standingsButton = document.createElement('button');
-    standingsButton.innerText = 'Show Standings';
-    standingsButton.onclick = () => {
-        showStandings();
-    };
-    controlsDiv.appendChild(standingsButton);
-
-    // Create the button and file input elements
-    const loadMusicButton = document.createElement('button');
-    loadMusicButton.innerText = 'Load Music';
-    loadMusicButton.style.marginTop = '10px'; // Adds some space above the button
-
-    const musicFileInput = document.createElement('input');
-    musicFileInput.type = 'file';
-    musicFileInput.accept = 'audio/*,video/mp4'; // Accepts audio files and .mp4 files
-    musicFileInput.style.display = 'none'; // Hides the input element
-
-    // Append the button to your control div or desired container
-    controlsDiv.appendChild(loadMusicButton);
-    controlsDiv.appendChild(musicFileInput);
-
-    // Event listener to trigger the file input when the button is clicked
+      });
+  
+      // Ensure the number of players matches the input
+      while (players.length < parseInt(numberInput.value)) {
+        players.push(createPlayer(getRandomName(), defaultPlayerImage[sportSelect.selectedIndex], getRandomColor()));
+      }
+  
+      // Refresh the player elements
+      const playerContainers = document.querySelectorAll('.player-container');
+      playerContainers.forEach((playerContainer) => playerContainer.remove());
+      players.forEach((player, index) => createPlayerElement(player, index));
+  
+      raceTime = parseInt(raceTimeInput.value, 10);
+      startRace();
+    });
+  
+    standingsButton.addEventListener('click', showStandings);
+  
     loadMusicButton.addEventListener('click', () => {
-        musicFileInput.click();
+      musicFileInput.click();
     });
-
-    // Event listener to handle the music file selection
+  
     musicFileInput.addEventListener('change', () => {
-        const file = musicFileInput.files[0];
-        if (file) {
-            audio.src = URL.createObjectURL(file);
-            isSongSelected = true;
-        }
+      const file = musicFileInput.files[0];
+      if (file) {
+        audio.src = URL.createObjectURL(file);
+        isSongSelected = true;
+      }
     });
-
-    const saveButton = document.createElement('button');
-    saveButton.innerText = 'Save Settings';
-    saveButton.onclick = saveSettings;
-    controlsDiv.appendChild(saveButton);
-
-    const loadButton = document.createElement('button');
-    loadButton.innerText = 'Load Settings';
-    loadButton.onclick = loadSettings;
-    controlsDiv.appendChild(loadButton);
-
-    document.body.appendChild(controlsDiv);
-}
+  
+    saveButton.addEventListener('click', saveSettings);
+    loadButton.addEventListener('click', loadSettings);
+  }  
 
 // Initialize UI
 function initializeUI() {
@@ -745,7 +607,6 @@ function initializeUI() {
     // Create player inputs div (player list) only once
     if (!document.getElementById('playerInputs')) {
         createPlayerListContainer();
-
         updatePlayerList();
         togglePlayerList(false);
     }
