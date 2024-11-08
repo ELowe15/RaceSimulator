@@ -148,7 +148,7 @@ body {
 }
 
 /* Label styling */
-.battle-label {
+.label {
     font-size: 16px;
     color: white;
     white-space: nowrap; /* Prevent label from breaking into multiple lines */
@@ -161,7 +161,7 @@ body {
     appearance: none; /* Remove default checkbox styling */
     width: 20px; /* Custom width */
     height: 20px; /* Custom height */
-    transform: scale(0.2, 1); /* Scale width and height independently */
+    transform: scale(0.3, 1); /* Scale width and height independently */
     background-color: rgba(20, 20, 20, 0.8); /* Dark background */
     border: 2px solid #ff6a00; /* Orange border to match theme */
     border-radius: 4px;
@@ -182,7 +182,7 @@ body {
     color: white; /* Color of the checkmark */
     font-size: 16px; /* Adjust size to fit */
     font-weight: bold;
-    transform: scale(6.66, 1); /* Scale width and height relative to checkbox */
+    transform: scale(3.33, 1); /* Scale width and height relative to checkbox */
 }
 
 /* General styling for dropdown */

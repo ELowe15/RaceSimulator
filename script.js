@@ -93,7 +93,8 @@ let audio = new Audio();
 let isSongSelected = false;
 
 let players = []; // Array to store player data
-const placements = []; // To track the order in which players finish
+let placements = []; // To track the order in which players finish
+let tempPlacements = []; // To track the order in which players finish
 
 let raceTime; // Default race duration
 let speeds = [];
@@ -189,23 +190,21 @@ function createPlayerElement(player, index) {
     return playerDiv;
 }
 
+function refreshPlayerElements(){
+    const playerContainers = document.querySelectorAll('.player-container');
+    playerContainers.forEach((playerContainer) => playerContainer.remove());
+    players.forEach((player, index) => createPlayerElement(player, index));
+}
+
 // Start the race
 function startRace() {
+    refreshPlayerElements();
     toggleControls(false); // Hide the controls
     togglePlayerList(false);
     deleteStandings();
-    let selectedIndex = document.getElementById('sportSelect').selectedIndex;
-    // Update the audio source based on the selected index
-    if(!isSongSelected){
-        audio.src = songs[selectedIndex];
-    }
-    audio.load();
-    //Restart and play music
-    audio.pause();         // Pause the music
-    audio.currentTime = 0; // Reset the music to the beginning
-    audio.play();
+    raceTime = parseInt(document.getElementById('raceTime').value, 10);
     finishedCount = 0;
-    placements.length = 0; // Clear previous placements
+    tempPlacements.length = 0; // Clear previous placements
     speeds = [];
     finished = [];
     const maxSpeed = 5*10/raceTime; // Maximum speed for the players
@@ -217,7 +216,6 @@ function startRace() {
         const speed = Math.min(baseSpeed * (Math.random() * 0.4 + 0.8), maxSpeed);
         speeds.push(speed);
         finished.push(false);
-
     });
 
     movePlayers(); // Start the race animation
@@ -264,7 +262,7 @@ function movePlayers() {
                 position = finishLine; // Stop at the adjusted finish line
                 finished[index] = true; // Mark as finished
                 finishedCount++;
-                placements.push(player.name); // Add to placements
+                tempPlacements.push(player.name); // Add to placements
                 const placement = finishedCount;
                 const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
                 const positionLabel = document.getElementsByClassName('player-container')[index].querySelector('.player-position-label');
@@ -272,7 +270,7 @@ function movePlayers() {
                 console.log(`${player.name} has finished!`);
 
                 // Show the placements when all players have finished
-                if (placements.length === players.length) {
+                if (tempPlacements.length === players.length) {
                     endRace(); // Call function to show results
                 }
             }
@@ -299,8 +297,29 @@ function movePlayers() {
 }
 
 function endRace() {
-    showStandings();
     toggleControls(true); // Show the controls
+    if (!document.getElementById('battleRoyaleToggle').checked)
+        {
+            placements = tempPlacements;
+            showStandings();
+            return;
+        }
+    let loser = tempPlacements[tempPlacements.length - 1];
+    const playerIndex = players.findIndex(player => player.name === loser);
+    placements.unshift(loser); // Add the loser to the start of the placements array
+
+    
+    if (playerIndex !== -1) {
+        players.splice(playerIndex, 1); // Remove the player at the found index
+        console.log(`Player ${loser} has been removed`);
+    } else {
+        console.log(`Player ${loser} not found`);
+    }
+    if (players.length == 1){
+        showBattleControls(false);
+        placements.unshift(tempPlacements[0]); // Add the loser to the start of the placements array
+    }
+    showStandings();
 }
 
 function deleteStandings(){
@@ -337,7 +356,12 @@ function showStandings() {
     copyButton.innerText = 'Copy Standings';
     copyButton.onclick = () => {
         const resultMessage = placements.map((playerName, index) => {
-            const placement = index + 1; // Get placement (1st, 2nd, etc.)
+            console.log(document.getElementById('battleRoyaleToggle').checked);
+            let placement = index + 1; // Get placement (1st, 2nd, etc.)
+            if (document.getElementById('battleRoyaleToggle').checked){
+                placement += document.getElementById('numberOfPlayers').value - placements.length;
+                console.log(placement);
+            }
             const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
             return `${placement}${suffix}: ${playerName}`; // Format the message
         }).join('\n'); // Join results with new lines
@@ -349,7 +373,11 @@ function showStandings() {
     };
 
     const standingsList = placements.map((playerName, index) => {
-        const placement = index + 1;
+        let placement = index + 1;
+        if (document.getElementById('battleRoyaleToggle').checked){
+            placement += document.getElementById('numberOfPlayers').value - placements.length;
+            console.log(placement);
+        }
         const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
         return `<p>${placement}${suffix}: ${playerName}</p>`;
     }).join('');
@@ -365,6 +393,20 @@ function toggleControls(visible) {
     if (controlsDiv) {
         controlsDiv.style.display = visible ? 'block' : 'none'; // Show or hide based on the visible flag
     }
+}
+
+function showBattleControls(isTrue){
+    let control;
+    let battle;
+    isTrue === false ? (control = 'inline-block', battle = 'none') : (control = 'none', battle = 'inline-block');
+    document.getElementById('playerListButton').style.display = control;
+    document.getElementById('startButton').style.display = control;
+    document.getElementById('nextButton').style.display = battle;
+    document.getElementById('saveButton').style.display = control;
+    document.getElementById('loadButton').style.display = control;
+    document.getElementById('battleSection').style.display = control;
+    document.getElementById('sportSection').style.display = control;
+    document.getElementById('playerNumberSection').style.display = control;
 }
 
 function togglePlayerList(visible) {
@@ -529,6 +571,8 @@ function updatePlayerList(players) {
 function createControls() {
     const playerListButton = document.getElementById('playerListButton');
     const startButton = document.getElementById('startButton');
+    const nextButton = document.getElementById('nextButton');
+    nextButton.style.display = 'none';
     const standingsButton = document.getElementById('standingsButton');
     const loadMusicButton = document.getElementById('loadMusicButton');
     const saveButton = document.getElementById('saveButton');
@@ -540,9 +584,9 @@ function createControls() {
     const raceTimeInput = document.getElementById('raceTime');
     const numberInput = document.getElementById('numberOfPlayers');
   
+    let visible = true;
     // Event Listeners for buttons
     playerListButton.addEventListener('click', () => {
-      let visible = true;
       togglePlayerList(visible);
       visible = !visible;
     });
@@ -570,15 +614,37 @@ function createControls() {
       while (players.length < parseInt(numberInput.value)) {
         players.push(createPlayer(getRandomName(), defaultPlayerImage[sportSelect.selectedIndex], getRandomColor()));
       }
-  
-      // Refresh the player elements
-      const playerContainers = document.querySelectorAll('.player-container');
-      playerContainers.forEach((playerContainer) => playerContainer.remove());
-      players.forEach((player, index) => createPlayerElement(player, index));
-  
-      raceTime = parseInt(raceTimeInput.value, 10);
+
+      if (document.getElementById('battleRoyaleToggle').checked){
+        showBattleControls(true);
+      }
+      placements.length = 0; // Clear previous placements
+      // Update the audio source based on the selected index
+      if(!isSongSelected){
+          audio.src = songs[document.getElementById('sportSelect').selectedIndex];
+      }
+      audio.load();
+      //Restart and play music
+      audio.pause();         // Pause the music
+      audio.currentTime = 0; // Reset the music to the beginning
+      audio.play();
       startRace();
     });
+
+    raceTimeInput.addEventListener('input', () => {
+        if (raceTimeInput.value == 0) {
+            raceTimeInput.value = '1';
+        }
+    });
+
+    numberInput.addEventListener('input', () => {
+        if (numberInput.value == 0) {
+            numberInput.value = prevPlayerCount;
+        }
+        updatePlayerList();
+    });
+
+    nextButton.addEventListener('click', startRace);
   
     standingsButton.addEventListener('click', showStandings);
   

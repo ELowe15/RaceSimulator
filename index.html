@@ -19,14 +19,14 @@
         </div>
 
         <!-- Battle Royale Mode Section -->
-        <div class="battle-container">
-            <label class="battle-label" for="battleRoyaleToggle">Battle Royale Mode:</label>
+        <div id="battleSection" class="battle-container">
+            <label class="label" for="battleRoyaleToggle">Last Man Standing Mode:</label>
             <input type="checkbox" id="battleRoyaleToggle" class="checkbox">
         </div>
 
         <!-- Sport Selection Section -->
-        <div class="control-container">
-            <label for="sportSelect">Select Sport: </label>
+        <div class="control-container" id="sportSection">
+            <label class="label" for="sportSelect">Select Sport: </label>
             <select id="sportSelect" class="styled-dropdown">
                 <option value="Basketball">Basketball</option>
                 <option value="Football">Football</option>
@@ -36,16 +36,21 @@
         </div>
 
         <!-- Race Time Section -->
-        <label for="raceTime">Approximate Race Time (seconds):</label>
-        <input type="number" id="raceTime" value="15" min="1" placeholder="Race Duration (seconds)">
+        <div class="control-container" id="raceTimeSection">
+            <label class="label" for="raceTime">Approximate Race Time (s):</label>
+            <input type="number" id="raceTime" value="15" min="1" placeholder="Race Duration (seconds)">
+        </div>
 
         <!-- Number of Players Section -->
-        <label for="numberOfPlayers">Number of Players:</label>
-        <input type="number" id="numberOfPlayers" value="12" min="1" placeholder="Number of Players">
+        <div class="control-container" id="playerNumberSection">
+            <label class="label" for="numberOfPlayers">Number of Players:</label>
+            <input type="number" id="numberOfPlayers" value="12" min="1" placeholder="Number of Players">
+        </div>
 
         <!-- Buttons -->
         <button id="playerListButton">Player List</button>
         <button id="startButton">Start Race</button>
+        <button id="nextButton">Next Race</button>
         <button id="standingsButton">Show Standings</button>
         <button id="loadMusicButton">Load Music</button>
         <button id="saveButton">Save Settings</button>
