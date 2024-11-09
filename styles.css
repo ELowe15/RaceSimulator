@@ -41,7 +41,7 @@ body {
     margin-right: 130px; /* Space between position label and player */
     margin-bottom: -75px; /* Space between name and image */
     display: inline-block; /* Ensure it does not take full width */
-    min-width: 50px; /* Ensure a consistent width */
+    width: 50px; /* Ensure a consistent width */
     text-align: center; /* Align text to the center of the label */
 }
 .controls {
@@ -78,6 +78,8 @@ body {
     cursor: pointer;
     transition: background-color 0.3s; /* Smooth transition */
     width: 100%; /* Full width for buttons */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
 }
 
 .controls button:hover {
@@ -184,6 +186,15 @@ body {
     transform: scale(5, 1); /* Scale width and height relative to checkbox */
 }
 
+input[type="number"] {
+    background-color: #333;
+    color: white;
+    border: 1px solid #ff6a00;
+    border-radius: 5px;
+    padding: 10px;
+    width: 50px;
+}
+
 /* General styling for dropdown */
 .styled-dropdown {
     background-color: rgba(20, 20, 20, 0.8); /* Dark semi-transparent background */
@@ -208,4 +219,14 @@ body {
     background-color: rgba(20, 20, 20, 0.9); /* Dark background for options */
     color: white; /* White text color */
     padding: 8px; /* Padding inside options */
+}
+
+.finish-line {
+    position: absolute;
+    height: 100%; /* Full width of the container */
+    width: 20px; /* width of the finish line */
+    background-image: linear-gradient(45deg, black 25%, white 25%, white 50%, black 50%, black 75%, white 75%, white);
+    background-size: 20px 20px; /* Size of the checker pattern */
+    z-index: 100; /* High z-index to bring it above other elements */
+    display: hidden;
 }

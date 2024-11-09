@@ -93,7 +93,7 @@ const imageRoot = 'Images/';
 const musicRoot = 'Music/';
 // Default player and background images (dynamic references)
 const defaultPlayerImage = ['bballHollow.png', 'fballHollow.png','puck.png', 'baseballHollow.png']; // Default to bball.png
-const backgroundImage = ['bball_court.jpg', 'fball_field.jpg', 'rink.jpg','baseball_diamond.jfif']; // Change file extension as needed
+const backgroundImage = ['bball_court.jpg', 'fball_field.jpg', 'rink.jpg','diamond.png']; // Change file extension as needed
 const songs = ['basketball.mp4', 'NFLonFox.mp4', 'HockeyNight.mp4', 'shipping.mp4']
 let audio = new Audio();
 let isSongSelected = false;
@@ -208,6 +208,7 @@ function startRace() {
     toggleControls(false); // Hide the controls
     togglePlayerList(false);
     deleteStandings();
+    setFinishLinePosition();
     raceTime = parseInt(document.getElementById('raceTime').value, 10);
     finishedCount = 0;
     tempPlacements.length = 0; // Clear previous placements
@@ -229,7 +230,9 @@ function startRace() {
 
 // Move players
 function movePlayers() {
-    const finishLine = window.innerWidth - 210; // Adjust finish line to the left by 20 pixels
+    const relativeFinish = parseInt(document.querySelector('.finish-line').style.left, 10);
+    console.log(relativeFinish, window.innerWidth);
+    const finishLine = relativeFinish - (135);
     let multiplier = 10;
     if (document.getElementById('raceTypeSelect').selectedIndex == HECTIC){
         multiplier = 20;
@@ -241,7 +244,6 @@ function movePlayers() {
         index,
         position: parseFloat(document.getElementsByClassName('player-container')[index].style.left) || 0
     }));
-    document.getElementById('raceTypeSelect');
     players.forEach((player, index) => {
         if (!finished[index]) {
             const playerContainer = document.getElementsByClassName('player-container')[index]; // Select the container
@@ -405,14 +407,13 @@ function showStandings() {
 function toggleControls(visible) {
     const controlsDiv = document.querySelector('.controls');
     if (controlsDiv) {
-        controlsDiv.style.display = visible ? 'block' : 'none'; // Show or hide based on the visible flag
+        controlsDiv.style.display = visible ? 'flex' : 'none'; // Show or hide based on the visible flag
     }
 }
 
 function showBattleControls(isTrue){
-    let control;
-    let battle;
-    isTrue === false ? (control = 'inline-block', battle = 'none') : (control = 'none', battle = 'inline-block');
+    let control = isTrue ? 'none' : 'flex';
+    let battle = isTrue ? 'flex' : 'none';
     document.getElementById('playerListButton').style.display = control;
     document.getElementById('startButton').style.display = control;
     document.getElementById('nextButton').style.display = battle;
@@ -427,6 +428,31 @@ function togglePlayerList(visible) {
     if (playerListContainer) {
         playerListContainer.style.display = visible ? 'block' : 'none'; // Show or hide based on the visible flag
     }
+}
+
+// Function to update the horizontal position of the finish line
+function setFinishLinePosition() {
+    console.log(window.innerWidth);
+    const finishLine = document.querySelector('.finish-line');
+    let TempPosition;
+    switch(document.getElementById('sportSelect').selectedIndex){
+        case BASKETBALL:
+            TempPosition = window.innerWidth - window.innerWidth*85/1912;
+            break;
+        case FOOTBALL:
+            TempPosition = window.innerWidth - window.innerWidth*215/1912;
+            break;
+        case HOCKEY:
+            TempPosition = window.innerWidth - window.innerWidth*90/1912;
+            break;
+        case BASEBALL:
+            TempPosition = window.innerWidth - window.innerWidth*450/1912;
+            break;
+    }
+    const position = TempPosition;
+    finishLine.style.left = `${position}px`; // Adjust finish line to the left by 20 pixels
+    finishLine.style.right = ''; // Clear any right value, just in case
+    finishLine.style.visibility = 'visible';
 }
 
 // Convert file to Base64
@@ -582,6 +608,10 @@ function updatePlayerList(players) {
         }
 }
 
+function hideFinish(){
+    document.querySelector('.finish-line').style.visibility = 'hidden';
+}
+
 function createControls() {
     const playerListButton = document.getElementById('playerListButton');
     const startButton = document.getElementById('startButton');
@@ -595,9 +625,13 @@ function createControls() {
     const sportSelect = document.getElementById('sportSelect');
     const raceTimeInput = document.getElementById('raceTime');
     const numberInput = document.getElementById('numberOfPlayers');
+    hideFinish();
     
     // Listen for changes to the selected sport
-    sportSelect.addEventListener('change', changeBackground);
+    sportSelect.addEventListener('change', () => {
+        changeBackground();
+        hideFinish();
+    });
 
     let visible = true;
     // Event Listeners for buttons
@@ -685,6 +719,7 @@ function initializeUI() {
     if (!document.getElementById('controls')) {
         createControls();
         changeBackground();
+        
     }
     // Create player inputs div (player list) only once
     if (!document.getElementById('playerInputs')) {

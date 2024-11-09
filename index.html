@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <div class="finish-line"></div>
+
     <div class="controls">
         <!-- Race Type Section -->
         <div class="control-container">
@@ -37,20 +40,20 @@
 
         <!-- Race Time Section -->
         <div class="control-container" id="raceTimeSection">
-            <label class="label" for="raceTime">Approximate Race Time (s):</label>
-            <input type="number" id="raceTime" value="15" min="1" placeholder="Race Duration (seconds)">
+            <label class="label" for="raceTime">Approx Race Time (s):</label>
+            <input type="number" id="raceTime" value="1" min="1" placeholder="Race Duration (seconds)">
         </div>
 
         <!-- Number of Players Section -->
         <div class="control-container" id="playerNumberSection">
             <label class="label" for="numberOfPlayers">Number of Players:</label>
-            <input type="number" id="numberOfPlayers" value="12" min="1" placeholder="Number of Players">
+            <input type="number" id="numberOfPlayers" value="3" min="1" placeholder="Number of Players">
         </div>
 
         <!-- Buttons -->
         <button id="playerListButton">Player List</button>
         <button id="startButton">Start Race</button>
-        <button id="nextButton">Next Race</button>
+        <button id="nextButton" display="None">Next Race</button>
         <button id="standingsButton">Show Standings</button>
         <button id="loadMusicButton">Load Music</button>
         <button id="saveButton">Save Settings</button>
