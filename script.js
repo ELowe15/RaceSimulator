@@ -80,6 +80,10 @@ const baseballNames = [
 
 const names = [basketballnames,footballNames,hockeyNames,baseballNames];
 
+const BALANCED = 0;
+const HECTIC = 1;
+const CLOSE = 2;
+
 const BASKETBALL = 0;
 const FOOTBALL = 1;
 const HOCKEY = 2;
@@ -209,8 +213,8 @@ function startRace() {
     tempPlacements.length = 0; // Clear previous placements
     speeds = [];
     finished = [];
+    
     const maxSpeed = 5*10/raceTime; // Maximum speed for the players
-    const minSpeed = 1*10/raceTime; // Minimum speed for the players
 
     const trackLength = window.innerWidth - 100; // Total distance for the race
     players.forEach((player, index) => {
@@ -226,35 +230,45 @@ function startRace() {
 // Move players
 function movePlayers() {
     const finishLine = window.innerWidth - 210; // Adjust finish line to the left by 20 pixels
-    const maxSpeed = 5*10/raceTime; // Maximum speed for the players
-    const minSpeed = 1*10/raceTime; // Minimum speed for the players
+    let multiplier = 10;
+    if (document.getElementById('raceTypeSelect').selectedIndex == HECTIC){
+        multiplier = 20;
+    }
+    const maxSpeed = 5*multiplier/raceTime; // Maximum speed for the players
+    const minSpeed = 1*multiplier/raceTime; // Minimum speed for the players
     // Store the current positions and their corresponding indices
     const currentPositions = players.map((_, index) => ({
         index,
         position: parseFloat(document.getElementsByClassName('player-container')[index].style.left) || 0
     }));
-
+    document.getElementById('raceTypeSelect');
     players.forEach((player, index) => {
         if (!finished[index]) {
             const playerContainer = document.getElementsByClassName('player-container')[index]; // Select the container
             let position = currentPositions[index].position; // Get current left position
-            
-            if ((speeds[index] <= (minSpeed*2)) && (Math.floor(Math.random() * 5)%1)) {
-                speedChange = minSpeed*3;
-            }
-            else if ((speeds[index] <= (minSpeed*2.5)) && (Math.floor(Math.random() * 5)%1)) {
-                speedChange = minSpeed + (Math.random()) * 0.5;
-            }
-            /*else if ((speeds[index] >= (maxSpeed*0.7)) && (Math.floor(Math.random() * 10)%3)){
-                speedChange = -minSpeed*4;
-            }*/
-            else if ((speeds[index] >= (maxSpeed*0.8)) && (Math.floor(Math.random() * 10)%2)){
-                speedChange = (Math.random() - 1) * 0.5 - minSpeed*1.5;
-            } else {
-                // Adjust speed randomly
-                speedChange = (Math.random() - 0.5) * 0.5;
-            }
 
+            switch(document.getElementById('raceTypeSelect').selectedIndex){
+                case HECTIC:
+                    speedChange = (Math.random() - 0.5) * 1;
+                    break;
+                default:
+                    if ((speeds[index] <= (minSpeed*2)) && (Math.floor(Math.random() * 5)%1)) {
+                        speedChange = minSpeed*3;
+                    }
+                    else if ((speeds[index] <= (minSpeed*2.5)) && (Math.floor(Math.random() * 5)%1)) {
+                        speedChange = minSpeed + (Math.random()) * 0.5;
+                    }
+                    /*else if ((speeds[index] >= (maxSpeed*0.7)) && (Math.floor(Math.random() * 10)%3)){
+                        speedChange = -minSpeed*4;
+                    }*/
+                    else if ((speeds[index] >= (maxSpeed*0.8)) && (Math.floor(Math.random() * 10)%2)){
+                        speedChange = (Math.random() - 1) * 0.5 - minSpeed*1.5;
+                    } else {
+                        // Adjust speed randomly
+                        speedChange = (Math.random() - 0.5) * 0.5;
+                    }
+                    break;
+            }
             
             speeds[index] = Math.max(minSpeed, Math.min(speeds[index] + speedChange, maxSpeed));
             position += speeds[index]; // Update position based on speed
@@ -578,8 +592,6 @@ function createControls() {
     const saveButton = document.getElementById('saveButton');
     const loadButton = document.getElementById('loadButton');
     const musicFileInput = document.getElementById('musicFileInput');
-    const battleRoyaleToggle = document.getElementById('battleRoyaleToggle');
-    const raceTypeSelect = document.getElementById('raceTypeSelect');
     const sportSelect = document.getElementById('sportSelect');
     const raceTimeInput = document.getElementById('raceTime');
     const numberInput = document.getElementById('numberOfPlayers');
