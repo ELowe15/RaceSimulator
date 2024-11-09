@@ -85,6 +85,8 @@ const FOOTBALL = 1;
 const HOCKEY = 2;
 const BASEBALL = 3;
 
+const imageRoot = 'Images/';
+const musicRoot = 'Music/';
 // Default player and background images (dynamic references)
 const defaultPlayerImage = ['bballHollow.png', 'fballHollow.png','puck.png', 'baseballHollow.png']; // Default to bball.png
 const backgroundImage = ['bball_court.jpg', 'fball_field.jpg', 'rink.jpg','baseball_diamond.jfif']; // Change file extension as needed
@@ -130,7 +132,7 @@ function getRandomName() {
 }
 
 function changeBackground(){
-    let background = backgroundImage[document.getElementById('sportSelect').selectedIndex]
+    let background = imageRoot + backgroundImage[document.getElementById('sportSelect').selectedIndex]
     document.body.style.backgroundImage = `url('${background}')`;
 }
 
@@ -300,7 +302,7 @@ function endRace() {
     toggleControls(true); // Show the controls
     if (!document.getElementById('battleRoyaleToggle').checked)
         {
-            placements = tempPlacements;
+            placements = tempPlacements.slice();
             showStandings();
             return;
         }
@@ -356,11 +358,9 @@ function showStandings() {
     copyButton.innerText = 'Copy Standings';
     copyButton.onclick = () => {
         const resultMessage = placements.map((playerName, index) => {
-            console.log(document.getElementById('battleRoyaleToggle').checked);
             let placement = index + 1; // Get placement (1st, 2nd, etc.)
             if (document.getElementById('battleRoyaleToggle').checked){
                 placement += document.getElementById('numberOfPlayers').value - placements.length;
-                console.log(placement);
             }
             const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
             return `${placement}${suffix}: ${playerName}`; // Format the message
@@ -583,7 +583,10 @@ function createControls() {
     const sportSelect = document.getElementById('sportSelect');
     const raceTimeInput = document.getElementById('raceTime');
     const numberInput = document.getElementById('numberOfPlayers');
-  
+    
+    // Listen for changes to the selected sport
+    sportSelect.addEventListener('change', changeBackground);
+
     let visible = true;
     // Event Listeners for buttons
     playerListButton.addEventListener('click', () => {
@@ -600,7 +603,7 @@ function createControls() {
         const colorInput = div.querySelector('.player-color');
         const name = nameInput.value.trim();
         const imageFile = imageInput.files[0];
-        const defaultImage = imageFile ? URL.createObjectURL(imageFile) : defaultPlayerImage[sportSelect.selectedIndex];
+        const defaultImage = imageFile ? URL.createObjectURL(imageFile) : imageRoot + defaultPlayerImage[sportSelect.selectedIndex];
         const image = div.loadedImage ? div.loadedImage : defaultImage;
         const backgroundColor = colorInput.value || getRandomColor();
         players.push({
@@ -612,7 +615,7 @@ function createControls() {
   
       // Ensure the number of players matches the input
       while (players.length < parseInt(numberInput.value)) {
-        players.push(createPlayer(getRandomName(), defaultPlayerImage[sportSelect.selectedIndex], getRandomColor()));
+        players.push(createPlayer(getRandomName(), imageRoot + defaultPlayerImage[sportSelect.selectedIndex], getRandomColor()));
       }
 
       if (document.getElementById('battleRoyaleToggle').checked){
@@ -621,7 +624,7 @@ function createControls() {
       placements.length = 0; // Clear previous placements
       // Update the audio source based on the selected index
       if(!isSongSelected){
-          audio.src = songs[document.getElementById('sportSelect').selectedIndex];
+          audio.src = musicRoot + songs[document.getElementById('sportSelect').selectedIndex];
       }
       audio.load();
       //Restart and play music
@@ -669,6 +672,7 @@ function initializeUI() {
     // Create controls and player inputs once
     if (!document.getElementById('controls')) {
         createControls();
+        changeBackground();
     }
     // Create player inputs div (player list) only once
     if (!document.getElementById('playerInputs')) {
