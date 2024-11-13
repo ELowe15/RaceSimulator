@@ -206,7 +206,6 @@ function movePlayers() {
                 const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
                 const positionLabel = document.getElementsByClassName('player-container')[index].querySelector('.player-position-label');
                 positionLabel.innerText = `${placement}${suffix}`; // Update position label
-                console.log(`${player.name} has finished!`);
 
                 // Race has finished
                 if (tempPlacements.length === players.length) {
@@ -313,7 +312,6 @@ function showStandings() {
         let placement = index + 1;
         if (document.getElementById('battleRoyaleToggle').checked){
             placement += document.getElementById('numberOfPlayers').value - placements.length;
-            console.log(placement);
         }
         const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
         return `<p>${placement}${suffix}: ${playerName}</p>`;
@@ -506,7 +504,6 @@ function updatePlayerList(players) {
 
                     if(players){
                         nameInput.value = players[i].name;
-                        //console.log(players[i].textContent);
                         playerDiv.loadedImage = players[i].image;
                     }
 
@@ -580,23 +577,25 @@ function createControls() {
         });
       });
 
-
       if (document.getElementById('battleRoyaleToggle').checked){
         showBattleControls(true);
       }
+
       placements.length = 0; // Clear previous placements
+
       // Update the audio source based on the selected index
-      if(!isSongSelected){
-          audio.src = musicRoot + songs[document.getElementById('sportSelect').selectedIndex];
-      }
-      audio.load();
+      /*if(!isSongSelected){
+        const defaultSongPath = musicRoot + songs[document.getElementById('sportSelect').selectedIndex];
+        audio.src = defaultSongPath;
+      }*/
+
       //Restart and play music
-      audio.pause();         // Pause the music
-      audio.currentTime = 0; // Reset the music to the beginning
+      audio.load();
       audio.play().catch(error => {
         console.error("Error during audio playback:", error);
         //alert("An error occurred while trying to play the audio. Please try another file.");
     });
+
       startRace();
     });
 
@@ -613,10 +612,6 @@ function createControls() {
         updatePlayerList();
     });
 
-    nextButton.addEventListener('click', startRace);
-  
-    standingsButton.addEventListener('click', showStandings);
-  
     loadMusicButton.addEventListener('click', () => {
       musicFileInput.click();
     });
@@ -629,6 +624,8 @@ function createControls() {
       }
     });
   
+    nextButton.addEventListener('click', startRace);
+    standingsButton.addEventListener('click', showStandings);
     saveButton.addEventListener('click', saveSettings);
     loadButton.addEventListener('click', loadSettings);
   }  
