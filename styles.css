@@ -1,3 +1,25 @@
+/**
+ * styles.css
+ * 
+ * Author: Evan Lowe
+ * Created: Oct 10 2024
+ * 
+ * Description:
+ * CSS styling for the fantasy sports race application. This file defines 
+ * styles for the layout, player elements, controls, and various UI components,
+ * ensuring a cohesive and visually appealing design. Includes specific styles 
+ * for background images, player avatars, control buttons, and finish line visuals.
+ * 
+ * Key Classes:
+ * - body: General body styling with background and layout adjustments.
+ * - .player-container: Layout styling for each player container.
+ * - .controls: Styling for the control panel with buttons and input fields.
+ * - .finish-line: Checkerboard pattern for the race finish line.
+ * 
+ * Version: 1.0
+ */
+
+
 body {
     background-size: 100% 100%; /* Stretches the image to fill the viewport */
     background-position: center; /* Centers the image */
@@ -91,7 +113,7 @@ body {
     border: 2px solid #ff6a00; /* Orange border */
     border-radius: 8px; /* Rounded corners */
     padding: 10px; /* Space inside player list */
-    display: flex; /* Flexbox for player list */
+    display: none; /* Flexbox for player list */
     flex-direction: column; /* Stack players vertically */
     justify-content: center; /* Center horizontally */
     align-items: center; /* Center vertically */

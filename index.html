@@ -1,3 +1,37 @@
+<!--
+    Fantasy Race - Main HTML File
+
+    Author: Evan Lowe
+    Created: Oct 10 2024
+    
+    Description:
+    This HTML file sets up the structure and main UI for the Fantasy Sports Race
+    application. It includes controls for race settings, player customization, 
+    and buttons for saving/loading settings and starting the race. The layout 
+    uses embedded CSS classes for styling (defined in styles.css) and relies 
+    on external JavaScript files (raceTools.js and script.js) for functionality.
+
+    Contents:
+    - Finish Line: Visual element representing the race finish line.
+    - Controls:
+        - Race Type: Dropdown to select race type (e.g., Balanced, Hectic).
+        - Battle Royale Mode: Toggle for elimination-based racing.
+        - Sport Selection: Dropdown to select the sport type.
+        - Race Time: Input field for race duration.
+        - Number of Players: Input for selecting the number of players.
+        - Buttons: Controls to show the player list, start the race, load music, 
+                   and save/load race settings.
+        - Hidden Music Input: Allows users to load custom audio files for the race.
+
+    Dependencies:
+    - styles.css: Styles for layout, player elements, and controls.
+    - raceTools.js: JavaScript for generating player names and colors.
+    - script.js: Main JavaScript file for race logic and UI interactions.
+
+    Version: 1.0
+-->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,6 +97,7 @@
         <input type="file" id="musicFileInput" accept="audio/*,video/mp4" style="display: none;">
     </div>
 
+    <script src="raceTools.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

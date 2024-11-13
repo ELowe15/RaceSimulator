@@ -1,101 +1,42 @@
-const basketballnames = [
-    'Jordan', 'LeBron', 'Kobe', 'Shaq', 'Magic', 'Larry', 'Wilt', 'Russell', 'Curry', 'Durant', 
-    'Iverson', 'Garnett', 'Duncan', 'Bird', 'Barkley', 'Wade', 'Harden', 'Westbrook', 'Pippen', 'Ewing',
-    'Stockton', 'Malone', 'Olajuwon', 'Robinson', 'Nash', 'Nowitzki', 'Pierce', 'Carter', 'McGrady', 'Payton',
-    'Mourning', 'Billups', 'Stoudemire', 'Kidd', 'Paul', 'Allen', 'Miller', 'Hill', 'Howard', 'Webber',
-    'Rose', 'Wall', 'Beal', 'Lillard', 'George', 'Butler', 'Tatum', 'Mitchell', 'Young', 'Morant',
-    'Embiid', 'Jokic', 'Giannis', 'Zion', 'Edwards', 'Ball', 'Haliburton', 'Fox', 'Ingram', 'DeRozan',
-    'Middleton', 'Siakam', 'Gobert', 'Towns', 'Murray', 'Booker', 'Porzingis', 'Adebayo', 'Bridges', 'Ayton',
-    'Sabonis', 'Green', 'Brown', 'Smart', 'Harris', 'Maxey', 'Holiday', 'Randle', 'VanVleet', 'Barnes',
-    'Cunningham', 'Banchero', 'Suggs', 'Mobley', 'Okoro', 'Vucevic', 'Markkanen', 'Simmons', 'Thompson', 'Wiseman',
-    'Poole', 'Wiggins', 'Porter', 'Looney', 'McCollum', 'Brooks', 'Adams', 'Hachimura', 'Avdija', 'Olynyk',
-    'Schroder', 'Rubio', 'Dragic', 'Bogdanovic', 'Gallinari', 'Bertans', 'Nurkic', 'Valanciunas', 'Kleber', 'Powell'
-];
+/**
+ * script.js
+ * 
+ * Author: Evan Lowe
+ * Created: Oct 10 2024
+ * 
+ * Description:
+ * This is the main JavaScript file for the fantasy sports race application.
+ * It handles the race setup, player creation, user interactions, and animation
+ * logic. Features include player customization, race simulation, standings 
+ * display, and event listeners for UI controls.
+ * 
+ * Functions:Momentum
+ * - changeBackground: Changes background image based on selected sport.
+ * - createPlayerListContainer: Initializes the player list container.
+ * - startRace: Begins the race animation and initializes player speeds.
+ * - movePlayers: Animates players towards the finish line.
+ * - showStandings: Displays the final standings after the race.
+ * - saveSettings / loadSettings: Save and load player and race configurations.
+ * 
+ * Dependencies:
+ * - raceTools.js: For player name and color generation.
+ * 
+ * Version: 1.0
+ */
 
-const hockeyNames = [
-    "McDavid", "Crosby", "Ovechkin", "MacKinnon", "Draisaitl",
-    "Matthews", "Panarin", "Kane", "Stamkos", "Eichel",
-    "Marchand", "Hedman", "Stone", "Pastrnak", "Josi",
-    "Tavares", "Kopitar", "Aho", "Marner", "Toews",
-    "Makar", "Hughes", "McAvoy", "O'Reilly", "Barzal",
-    "Point", "Heiskanen", "Hellebuyck", "Price", "Hamilton",
-    "Gaudreau", "Connor", "Hertl", "Voracek", "Svechnikov",
-    "Malkin", "Nylander", "Pettersson", "Forsberg", "Scheifele",
-    "Tkachuk", "Huberdeau", "Landeskog", "Subban", "Letang",
-    "Benn", "Dubois", "Wheeler", "Bergeron", "Pavelski",
-    "Giroux", "Tarasenko", "Kucherov", "Fox", "Reinhart",
-    "Boeser", "Ekblad", "Getzlaf", "Doughty", "Giordano",
-    "Smith", "Lindholm", "Anderson", "Nugent-Hopkins", "Larkin",
-    "Carter", "Lafreniere", "Holtz", "Byram", "Zegras",
-    "Robertson", "Batherson", "DeBrincat", "Hintz", "Dobson",
-    "Suzuki", "Necas", "Kravtsov", "Tolvanen", "Bean",
-    "Steen", "Bishop", "Talbot", "Parise", "Gallagher",
-    "Chabot", "Spurgeon", "Rielly", "Chychrun", "Lundell",
-    "Jarry", "Lankinen", "Shesterkin", "Sarros", "Raanta"
-];
+// Constants for sports and race types
+const BASKETBALL = 0, FOOTBALL = 1, HOCKEY = 2, BASEBALL = 3;
+const BALANCED = 0, HECTIC = 1, CLOSE = 2;
 
-const footballNames = [
-    "Brady", "Mahomes", "Rodgers", "Jackson", "Wilson",
-    "Barkley", "Henry", "McCaffrey", "Kamara", "Cook",
-    "Adams", "Hopkins", "Diggs", "Hill", "Jones",
-    "Kittle", "Kelce", "Waller", "Smith", "Murray",
-    "Watson", "Allen", "Garoppolo", "Goff", "Herbert",
-    "Mixon", "Carson", "Chubb", "Hunt", "Jacobs",
-    "Gordon", "Taylor", "Swift", "Ekeler", "Fournette",
-    "Robinson", "Sanders", "Johnson", "Montgomery", "Brown",
-    "Metcalf", "Godwin", "Evans", "Thielen", "Fuller",
-    "Landry", "Jeudy", "Anderson", "Parker", "Moore",
-    "Higgins", "Claypool", "Smith-Schuster", "Shenault", "Samuel",
-    "Henry", "Davis", "Williams", "Boyd", "Gage",
-    "White", "Akers", "Moss", "Jones", "Pollard",
-    "Harris", "Scott", "Wilson", "Drake", "Patterson",
-    "Golladay", "Allen", "Cobb", "Sanders", "Beasley",
-    "Newton", "Love", "Stafford", "Fitzpatrick", "Tannehill",
-    "Watson", "Burrow", "Smith", "Hurst", "Meyers",
-    "Newton", "Bridgewater", "Tagovailoa", "Wentz", "Cousins",
-    "Hurts", "Lawrence", "Fields", "Wilson", "Prescott"
-];
+// Paths for images and music
+const imageRoot = 'Images/', musicRoot = 'Music/';
 
-const baseballNames = [
-    "Trout", "Betts", "Arenado", "Lindor", "Yelich",
-    "Harper", "Machado", "Bellinger", "Acuna", "Freeman",
-    "Altuve", "Judge", "Springer", "Martinez", "Bryant",
-    "Goldschmidt", "Rizzo", "Soto", "Seager", "Arenado",
-    "Ramirez", "Correa", "Bregman", "Turner", "Guerrero",
-    "Cole", "Kershaw", "Scherzer", "Bauer", "deGrom",
-    "Snell", "Gray", "Nola", "Paddack", "Lynn",
-    "Darvish", "Giolito", "Gallen", "Flaherty", "Hader",
-    "Chapman", "Hendriks", "Yates", "Iglesias", "Hand",
-    "Rosenthal", "Pressly", "Diekman", "Williams", "Hudson",
-    "Pham", "Kiermaier", "Hicks", "Conforto", "Castellanos",
-    "Ozuna", "Merrifield", "Soler", "Marte", "Blackmon",
-    "Gallo", "Grisham", "McNeil", "Canha", "Mullins",
-    "Brantley", "Verdugo", "Benintendi", "Pence", "Upton",
-    "Myers", "Calhoun", "Reyes", "Martinez", "Santander",
-    "Schwarber", "Davis", "Duvall", "Smoak", "Gonzalez",
-    "Pujols", "Abreu", "Lowe", "Senzel", "Encarnacion",
-    "Alvarez", "Sano", "Diaz", "Mountcastle", "Anderson",
-    "Luzardo", "Urias", "May", "Gonzales", "Wheeler"
-];
-
-const names = [basketballnames,footballNames,hockeyNames,baseballNames];
-
-const BALANCED = 0;
-const HECTIC = 1;
-const CLOSE = 2;
-
-const BASKETBALL = 0;
-const FOOTBALL = 1;
-const HOCKEY = 2;
-const BASEBALL = 3;
-
-const imageRoot = 'Images/';
-const musicRoot = 'Music/';
 // Default player and background images (dynamic references)
 const defaultPlayerImage = ['bballHollow.png', 'fballHollow.png','puck.png', 'baseballHollow.png']; // Default to bball.png
 const backgroundImage = ['bball_court.jpg', 'fball_field.jpg', 'rink.jpg','diamond.png']; // Change file extension as needed
+
 const songs = ['basketball.mp4', 'NFLonFox.mp4', 'HockeyNight.mp4', 'shipping.mp4']
-let audio = new Audio();
+let audio = new Audio(); // Audio setup
 let isSongSelected = false;
 
 let players = []; // Array to store player data
@@ -111,30 +52,7 @@ let playerListContainer; // Reference to player list container
 // Placeholder for standings
 let standingsCreated = false;
 
-// Function to shuffle an array
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-// Function to generate random background color
-function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
-// Function to generate random player names
-function getRandomName() {
-    let selectedIndex = document.getElementById('sportSelect').selectedIndex;
-    return names[selectedIndex][Math.floor(Math.random() * names[selectedIndex].length)];
-}
-
+//Sets the background image based on the selected sport
 function changeBackground(){
     let background = imageRoot + backgroundImage[document.getElementById('sportSelect').selectedIndex]
     document.body.style.backgroundImage = `url('${background}')`;
@@ -154,6 +72,7 @@ function createPlayerListContainer() {
     }
 }
 
+// Function to populate player list with given player data
 function loadPlayerList(players){
     playerListContainer.innerHTML = '';  // Clear the container
     prevPlayerCount = 0;
@@ -196,15 +115,17 @@ function createPlayerElement(player, index) {
     return playerDiv;
 }
 
-function refreshPlayerElements(){
+function refreshPlayerElements(create){
     const playerContainers = document.querySelectorAll('.player-container');
     playerContainers.forEach((playerContainer) => playerContainer.remove());
-    players.forEach((player, index) => createPlayerElement(player, index));
+    if (create){
+        players.forEach((player, index) => createPlayerElement(player, index));
+    } 
 }
 
 // Start the race
 function startRace() {
-    refreshPlayerElements();
+    refreshPlayerElements(true);
     toggleControls(false); // Hide the controls
     togglePlayerList(false);
     deleteStandings();
@@ -216,8 +137,8 @@ function startRace() {
     finished = [];
     
     const maxSpeed = 5*10/raceTime; // Maximum speed for the players
-
     const trackLength = window.innerWidth - 100; // Total distance for the race
+
     players.forEach((player, index) => {
         const baseSpeed = trackLength / (60 * raceTime);
         const speed = Math.min(baseSpeed * (Math.random() * 0.4 + 0.8), maxSpeed);
@@ -231,7 +152,6 @@ function startRace() {
 // Move players
 function movePlayers() {
     const relativeFinish = parseInt(document.querySelector('.finish-line').style.left, 10);
-    console.log(relativeFinish, window.innerWidth);
     const finishLine = relativeFinish - (135);
     let multiplier = 10;
     if (document.getElementById('raceTypeSelect').selectedIndex == HECTIC){
@@ -239,6 +159,7 @@ function movePlayers() {
     }
     const maxSpeed = 5*multiplier/raceTime; // Maximum speed for the players
     const minSpeed = 1*multiplier/raceTime; // Minimum speed for the players
+
     // Store the current positions and their corresponding indices
     const currentPositions = players.map((_, index) => ({
         index,
@@ -287,9 +208,9 @@ function movePlayers() {
                 positionLabel.innerText = `${placement}${suffix}`; // Update position label
                 console.log(`${player.name} has finished!`);
 
-                // Show the placements when all players have finished
+                // Race has finished
                 if (tempPlacements.length === players.length) {
-                    endRace(); // Call function to show results
+                    endRace(); 
                 }
             }
 
@@ -432,7 +353,6 @@ function togglePlayerList(visible) {
 
 // Function to update the horizontal position of the finish line
 function setFinishLinePosition() {
-    console.log(window.innerWidth);
     const finishLine = document.querySelector('.finish-line');
     let TempPosition;
     switch(document.getElementById('sportSelect').selectedIndex){
@@ -567,7 +487,6 @@ function updatePlayerList(players) {
                     nameInput.placeholder = `Player ${i + 1} Name`;
 
                     nameInput.classList.add('player-name');
-                    //nameInput.value = getRandomName(); // Assign a random name
                     playerDiv.appendChild(nameInput);
 
                     const imageInput = document.createElement('input');
@@ -630,6 +549,7 @@ function createControls() {
     // Listen for changes to the selected sport
     sportSelect.addEventListener('change', () => {
         changeBackground();
+        refreshPlayerElements(false);
         hideFinish();
     });
 
@@ -642,6 +562,7 @@ function createControls() {
   
     startButton.addEventListener('click', () => {
       const playerDivs = document.querySelectorAll('.player-input');
+      const sportIndex = document.getElementById('sportSelect').selectedIndex;
       players = [];
       playerDivs.forEach((div) => {
         const nameInput = div.querySelector('.player-name');
@@ -653,16 +574,12 @@ function createControls() {
         const image = div.loadedImage ? div.loadedImage : defaultImage;
         const backgroundColor = colorInput.value || getRandomColor();
         players.push({
-          name: name || getRandomName(),
+          name: name || getRandomName(sportIndex),
           image,
           backgroundColor
         });
       });
-  
-      // Ensure the number of players matches the input
-      while (players.length < parseInt(numberInput.value)) {
-        players.push(createPlayer(getRandomName(), imageRoot + defaultPlayerImage[sportSelect.selectedIndex], getRandomColor()));
-      }
+
 
       if (document.getElementById('battleRoyaleToggle').checked){
         showBattleControls(true);
@@ -676,7 +593,10 @@ function createControls() {
       //Restart and play music
       audio.pause();         // Pause the music
       audio.currentTime = 0; // Reset the music to the beginning
-      audio.play();
+      audio.play().catch(error => {
+        console.error("Error during audio playback:", error);
+        //alert("An error occurred while trying to play the audio. Please try another file.");
+    });
       startRace();
     });
 
@@ -719,13 +639,11 @@ function initializeUI() {
     if (!document.getElementById('controls')) {
         createControls();
         changeBackground();
-        
     }
     // Create player inputs div (player list) only once
     if (!document.getElementById('playerInputs')) {
         createPlayerListContainer();
         updatePlayerList();
-        togglePlayerList(false);
     }
 }
 
