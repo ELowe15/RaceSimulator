@@ -75,13 +75,13 @@
         <!-- Race Time Section -->
         <div class="control-container" id="raceTimeSection">
             <label class="label" for="raceTime">Approx Race Time (s):</label>
-            <input type="number" id="raceTime" value="1" min="1" placeholder="Race Duration (seconds)">
+            <input type="number" id="raceTime" value="15" min="1">
         </div>
 
         <!-- Number of Players Section -->
         <div class="control-container" id="playerNumberSection">
             <label class="label" for="numberOfPlayers">Number of Players:</label>
-            <input type="number" id="numberOfPlayers" value="3" min="1" placeholder="Number of Players">
+            <input type="number" id="numberOfPlayers" value="12" min="1" max="30">
         </div>
 
         <!-- Buttons -->
@@ -92,6 +92,9 @@
         <button id="loadMusicButton">Load Music</button>
         <button id="saveButton">Save Settings</button>
         <button id="loadButton">Load Settings</button>
+
+        <!-- Error message for user-->
+        <div id="errorPopup" class="error-popup"></div>
 
         <!-- Music File Input (hidden) -->
         <input type="file" id="musicFileInput" accept="audio/*,video/mp4" style="display: none;">

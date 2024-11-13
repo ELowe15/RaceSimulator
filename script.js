@@ -528,6 +528,22 @@ function hideFinish(){
     document.querySelector('.finish-line').style.visibility = 'hidden';
 }
 
+// Function to show the error message with auto-hide
+function showError(message, duration = 3000) {
+    const errorPopup = document.getElementById('errorPopup');
+    errorPopup.textContent = message;   // Set the error message
+    errorPopup.style.display = 'block'; // Make the pop-up visible
+    errorPopup.style.opacity = '1';     // Fade-in effect
+
+    // Hide the pop-up after the specified duration
+    setTimeout(() => {
+        errorPopup.style.opacity = '0'; // Fade-out effect
+        setTimeout(() => {
+            errorPopup.style.display = 'none'; // Hide completely after fade-out
+        }, 500); // Match this with the CSS transition duration
+    }, duration);
+}
+
 function createControls() {
     const playerListButton = document.getElementById('playerListButton');
     const startButton = document.getElementById('startButton');
@@ -558,6 +574,14 @@ function createControls() {
     });
   
     startButton.addEventListener('click', () => {
+      if (!raceTimeInput.value){
+        showError("Please enter a race time before starting the race.");
+        return;
+      }
+      if (!numberInput.value){
+        showError("Please enter the amount of players before starting the race.");
+        return;
+      }
       const playerDivs = document.querySelectorAll('.player-input');
       const sportIndex = document.getElementById('sportSelect').selectedIndex;
       players = [];
@@ -592,23 +616,33 @@ function createControls() {
       //Restart and play music
       audio.load();
       audio.play().catch(error => {
+        showError("An error occurred while trying to play the audio. Please try another file.");
         console.error("Error during audio playback:", error);
-        //alert("An error occurred while trying to play the audio. Please try another file.");
     });
 
       startRace();
     });
 
     raceTimeInput.addEventListener('input', () => {
-        if (raceTimeInput.value == 0) {
+        if (raceTimeInput.value == '0') {
             raceTimeInput.value = '1';
         }
+        else if (!raceTimeInput.value){
+            raceTimeInput.style.backgroundColor = "red";
+            return;
+        }
+        raceTimeInput.style.backgroundColor = ""; // Reset to default
     });
 
     numberInput.addEventListener('input', () => {
-        if (numberInput.value == 0) {
+        if (numberInput.value == '0') {
             numberInput.value = prevPlayerCount;
         }
+        else if (!numberInput.value){
+            numberInput.style.backgroundColor = "red";
+            return;
+        }
+        numberInput.style.backgroundColor = ""; // Reset to default
         updatePlayerList();
     });
 
