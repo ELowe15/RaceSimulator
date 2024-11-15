@@ -128,7 +128,7 @@ function startRace() {
     refreshPlayerElements(true);
     toggleControls(false); // Hide the controls
     togglePlayerList(false);
-    deleteStandings();
+    showStandings(false);
     setFinishLinePosition();
     raceTime = parseInt(document.getElementById('raceTime').value, 10);
     finishedCount = 0;
@@ -260,68 +260,53 @@ function endRace() {
     showStandings();
 }
 
-function deleteStandings(){
-    if (document.getElementById('standingsDiv')){
-        document.getElementById('standingsDiv').remove();
-    }
-}
-
-function showStandings() {
-    if (document.getElementById('standingsDiv')){
-        deleteStandings();
+function showStandings(show = true) {
+    
+    const standingsDiv = document.getElementById('standingsDiv');
+    if ((standingsDiv.style.visibility === 'visible') || !show) {
+        standingsDiv.style.visibility = 'hidden'; // Hide if already visible
         return;
     }
-    const standingsDiv = document.createElement('div');
-    standingsDiv.id = 'standingsDiv';
-    standingsDiv.style.position = 'fixed';
-    standingsDiv.style.top = '50%';
-    standingsDiv.style.left = '50%';
-    standingsDiv.style.transform = 'translate(-50%, -50%)';
-    standingsDiv.style.backgroundColor = '#fff';
-    standingsDiv.style.padding = '20px';
-    standingsDiv.style.border = '1px solid #ccc';
-    standingsDiv.style.borderRadius = '10px';
-    standingsDiv.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
-    standingsDiv.style.zIndex = '1001';
 
-    const closeButton = document.createElement('button');
-    closeButton.innerText = 'Close';
-    closeButton.onclick = () => {
-        standingsDiv.remove();
-    };
+    // Display and update standings
+    const standingsContent = document.getElementById('standingsContent');
 
-    const copyButton = document.createElement('button');
-    copyButton.innerText = 'Copy Standings';
-    copyButton.onclick = () => {
-        const resultMessage = placements.map((playerName, index) => {
-            let placement = index + 1; // Get placement (1st, 2nd, etc.)
-            if (document.getElementById('battleRoyaleToggle').checked){
-                placement += document.getElementById('numberOfPlayers').value - placements.length;
-            }
-            const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th'; // Determine suffix
-            return `${placement}${suffix}: ${playerName}`; // Format the message
-        }).join('\n'); // Join results with new lines
-
-        navigator.clipboard.writeText(`Standings\n${resultMessage}`)
-            .catch(err => {
-                console.error('Failed to copy: ', err);
-            });
-    };
-
-    const standingsList = placements.map((playerName, index) => {
+    // Generate standings list
+    standingsContent.innerHTML = placements.map((playerName, index) => {
         let placement = index + 1;
-        if (document.getElementById('battleRoyaleToggle').checked){
+        if (document.getElementById('battleRoyaleToggle').checked) {
             placement += document.getElementById('numberOfPlayers').value - placements.length;
         }
         const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
         return `<p>${placement}${suffix}: ${playerName}</p>`;
     }).join('');
 
-    standingsDiv.innerHTML = `<h3>Standings</h3>${standingsList}`;
-    standingsDiv.appendChild(copyButton); // Add the copy button
-    standingsDiv.appendChild(closeButton);
-    document.body.appendChild(standingsDiv);
+    // Copy standings to clipboard
+    document.getElementById('copyButton').onclick = () => {
+        const resultMessage = placements.map((playerName, index) => {
+            let placement = index + 1;
+            if (document.getElementById('battleRoyaleToggle').checked) {
+                placement += document.getElementById('numberOfPlayers').value - placements.length;
+            }
+            const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
+            return `${placement}${suffix}: ${playerName}`;
+        }).join('\n');
+        
+        navigator.clipboard.writeText(`Standings\n${resultMessage}`)
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                errorPopup("Failed to copy");
+                
+            });
+    };
+
+    // Close standings
+    document.getElementById('closeButton').onclick = () => {
+        standingsDiv.style.visibility = 'hidden';
+    };
+    standingsDiv.style.visibility = 'visible';
 }
+
 
 function toggleControls(visible) {
     const controlsDiv = document.querySelector('.controls');
@@ -355,7 +340,7 @@ function setFinishLinePosition() {
     let TempPosition;
     switch(document.getElementById('sportSelect').selectedIndex){
         case BASKETBALL:
-            TempPosition = window.innerWidth - window.innerWidth*85/1912;
+            TempPosition = window.innerWidth - window.innerWidth*90/1912;
             break;
         case FOOTBALL:
             TempPosition = window.innerWidth - window.innerWidth*215/1912;
@@ -429,7 +414,7 @@ async function saveSettings() {
         //alert(`Settings saved successfully!`);
     } catch (err) {
         console.error("Error saving settings:", err);
-        //alert("Failed to save settings.");
+        errorPopup("Failed to save settings.");
     }
 }
 
@@ -468,7 +453,7 @@ async function loadSettings() {
         //alert(`Settings loaded successfully.`);
     } catch (error) {
         console.error("Error loading settings:", error);
-        //alert("Failed to load settings.");
+        errorPopup("Failed to load settings.");
     }
 }
 
@@ -557,7 +542,6 @@ function createControls() {
     const sportSelect = document.getElementById('sportSelect');
     const raceTimeInput = document.getElementById('raceTime');
     const numberInput = document.getElementById('numberOfPlayers');
-    hideFinish();
     
     // Listen for changes to the selected sport
     sportSelect.addEventListener('change', () => {

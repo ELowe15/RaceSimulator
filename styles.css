@@ -66,6 +66,15 @@ body {
     width: 50px; /* Ensure a consistent width */
     text-align: center; /* Align text to the center of the label */
 }
+
+.title {
+    font-size: 1.5rem; /* Adjust the font size */
+    font-weight: bold; /* Make it bold */
+    text-align: center; /* Center align the text */
+    text-decoration: underline; /* Underline the text */
+    margin-bottom: 10px; /* Space between the label and other elements */
+}
+
 .controls {
     z-index: 1000;
     background-color: rgba(20, 20, 20, 0.8); /* Darker background */
@@ -155,7 +164,7 @@ body {
 .control-container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Spreads out content to full width */
+    justify-content: center;
     gap: 0px;
     width: 100%; /* Full width */
     margin: 5px;
@@ -250,7 +259,7 @@ input[type="number"] {
     background-image: linear-gradient(45deg, black 25%, white 25%, white 50%, black 50%, black 75%, white 75%, white);
     background-size: 20px 20px; /* Size of the checker pattern */
     z-index: 100; /* High z-index to bring it above other elements */
-    display: hidden;
+    visibility: hidden;
 }
 
 .error-popup {
@@ -266,4 +275,41 @@ input[type="number"] {
     z-index: 1000;
     opacity: 0;
     transition: opacity 0.5s ease-in-out; /* Smooth fade-in and fade-out */
+}
+
+.standings-div {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: black; /* Darker background */
+    padding: 10px;
+    border: 2px solid #ff6a00; /* Orange border */
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    visibility: hidden;
+}
+
+.standings-div h3 {
+    margin: 0;
+    font-size: 20px;
+    text-align: center; /* Centers the word "Standings" */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center; /* Centers the buttons horizontally */
+    gap: 10px; /* Adds space between the buttons */
+}
+
+.button-container button {
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: #ff6a00; /* Orange background */
+    color: white; /* Button text color */
+    border: none;
+    border-radius: 5px;
 }

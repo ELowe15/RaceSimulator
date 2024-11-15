@@ -45,9 +45,15 @@
     <div class="finish-line"></div>
 
     <div class="controls">
+
+         <!-- Sport Selection Section -->
+         <div class="control-container">
+            <label class="title" for="sportSelect">Fantasy Draft Race</label>
+        </div>
+
         <!-- Race Type Section -->
         <div class="control-container">
-            <label for="raceTypeSelect">Race Type: </label>
+            <label class="label" for="raceTypeSelect">Race Type: </label>
             <select id="raceTypeSelect" class="styled-dropdown">
                 <option value="Balanced">Balanced</option>
                 <option value="Hectic">Hectic</option>
@@ -87,11 +93,20 @@
         <!-- Buttons -->
         <button id="playerListButton">Player List</button>
         <button id="startButton">Start Race</button>
-        <button id="nextButton" display="None">Next Race</button>
+        <button id="nextButton" style="display: none;">Next Race</button>
         <button id="standingsButton">Show Standings</button>
         <button id="loadMusicButton">Load Music</button>
         <button id="saveButton">Save Settings</button>
         <button id="loadButton">Load Settings</button>
+
+        <div class="standings-div" id="standingsDiv" style="visibility: hidden;">
+            <h3>Standings</h3>
+            <div id="standingsContent"></div>
+            <div class="button-container">
+                <button id="copyButton">Copy</button>
+                <button id="closeButton">Close</button>
+            </div>
+        </div>
 
         <!-- Error message for user-->
         <div id="errorPopup" class="error-popup"></div>
