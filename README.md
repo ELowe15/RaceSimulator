@@ -12,6 +12,7 @@ This app lets users choose race settings, customize player details, and view rac
 - **Sport Selection**: Select from Basketball, Football, Hockey, or Baseball themes, each with custom backgrounds and audio.
 - **Save & Load Settings**: Save your custom race settings and load them for future races.
 - **Interactive Music**: Choose your preferred background music or load custom audio files.
+- **User-Friendly Error Messages**: Displays pop-up error messages if issues occur during audio playback, guiding the user to select a different audio file if necessary.
 
 ## Project Structure
 
@@ -60,7 +61,15 @@ This app lets users choose race settings, customize player details, and view rac
 5. **Save & Load Settings**:
    - Save your customized race settings with **Save Settings**.
    - Load previously saved settings with **Load Settings** for a quick setup.
+  
+## Error Handling
 
+The application includes user-friendly error handling for:
+- **Invalid Input Values**: Displays to the user if inputted values are invalid when trying to start a race.
+- **Audio Playback Issues**: If there’s an issue with audio playback a pop-up error message will appear. This message guides the user to select a different, valid audio file.
+- **Missing or Invalid Audio Files**: The application also checks if the selected audio file exists and is a valid audio format before attempting playback.
+- **File Checks**: Ensures selected audio files are accessible, playable, and meet format requirements.
+  
 ## Dependencies
 
 - **raceTools.js**: Used for random name and color generation for players.
