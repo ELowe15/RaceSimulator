@@ -10,7 +10,7 @@
  * logic. Features include player customization, race simulation, standings 
  * display, and event listeners for UI controls.
  * 
- * Functions:Momentum
+ * Functions:
  * - changeBackground: Changes background image based on selected sport.
  * - createPlayerListContainer: Initializes the player list container.
  * - startRace: Begins the race animation and initializes player speeds.
@@ -171,6 +171,22 @@ function movePlayers() {
             let position = currentPositions[index].position; // Get current left position
 
             switch(document.getElementById('raceTypeSelect').selectedIndex){
+                case CLOSE:
+                    const remainingPlayers = currentPositions.filter((_, index) => !finished[index]); // Get players who haven't finished
+                    const totalPlayers = remainingPlayers.length
+                    
+                    // A chance for players to speed up or slow down relative to their position unless they are the only one left
+                    if (!Math.floor(Math.random() * 10)%4 && totalPlayers != 1) {
+                        const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position); // Sort based on position
+                        const rank = sortedPositions.findIndex(player => player.index === index);
+                        
+                        // Calculate the scaleFactor between -1 and 1
+                        const scaleFactor = ((rank - (totalPlayers - 1) / 2) / ((totalPlayers - 1) / 2));
+                        speedChange = (Math.random() + scaleFactor) * 0.5; // Proportional boost
+                    } else {
+                        speedChange = (Math.random() - 0.5) * 0.5;
+                    }
+                    break;
                 case HECTIC:
                     speedChange = (Math.random() - 0.5) * 1;
                     break;
@@ -218,8 +234,8 @@ function movePlayers() {
     });
 
     // Recalculate positions and update labels
-    const finishedPlayers = currentPositions.filter((_, index) => !finished[index]); // Get players who haven't finished
-    const sortedPositions = finishedPlayers.sort((a, b) => b.position - a.position); // Sort based on position
+    const remainingPlayers = currentPositions.filter((_, index) => !finished[index]); // Get players who haven't finished
+    const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position); // Sort based on position
 
     // Update position labels for the current placements
     sortedPositions.forEach((playerPos, rank) => {
@@ -475,6 +491,7 @@ function updatePlayerList(players) {
                     const imageInput = document.createElement('input');
                     imageInput.type = 'file';
                     imageInput.accept = 'image/*'; // Accept any image type
+                    imageInput.style.color = 'white';
                     imageInput.classList.add('player-image');
                     playerDiv.appendChild(imageInput);
 
