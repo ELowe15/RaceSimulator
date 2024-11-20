@@ -32,7 +32,7 @@ const BALANCED = 0, HECTIC = 1, CLOSE = 2;
 const imageRoot = 'Images/', musicRoot = 'Music/';
 
 // Default player and background images (dynamic references)
-const defaultPlayerImage = ['bballHollow.png', 'fballHollow.png','puck.png', 'baseballHollow.png']; // Default to bball.png
+const defaultPlayerImage = ['bballHollow.png', 'fball.png','puck.png', 'baseballHollow.png']; // Default to bball.png
 const backgroundImage = ['bball_court.jpg', 'fball_field.jpg', 'rink.jpg','diamond.png']; // Change file extension as needed
 
 const songs = ['basketball.mp4', 'NFLonFox.mp4', 'HockeyNight.mp4', 'shipping.mp4']
@@ -151,7 +151,7 @@ function startRace() {
 
 // Move players
 function movePlayers() {
-    const relativeFinish = parseInt(document.querySelector('.finish-line').style.left, 10);
+    const relativeFinish = parseInt(document.querySelector('.finish-line1').style.left, 10);
     const finishLine = relativeFinish - (135);
     let multiplier = 10;
     if (document.getElementById('raceTypeSelect').selectedIndex == HECTIC){
@@ -311,7 +311,7 @@ function showStandings(show = true) {
         navigator.clipboard.writeText(`Standings\n${resultMessage}`)
             .catch(err => {
                 console.error('Failed to copy: ', err);
-                errorPopup("Failed to copy");
+                showError("Failed to copy");
                 
             });
     };
@@ -352,7 +352,9 @@ function togglePlayerList(visible) {
 
 // Function to update the horizontal position of the finish line
 function setFinishLinePosition() {
-    const finishLine = document.querySelector('.finish-line');
+    const finishLine1 = document.querySelector('.finish-line1');
+    const finishLine2 = document.querySelector('.finish-line2');
+
     let TempPosition;
     switch(document.getElementById('sportSelect').selectedIndex){
         case BASKETBALL:
@@ -369,9 +371,12 @@ function setFinishLinePosition() {
             break;
     }
     const position = TempPosition;
-    finishLine.style.left = `${position}px`; // Adjust finish line to the left by 20 pixels
-    finishLine.style.right = ''; // Clear any right value, just in case
-    finishLine.style.visibility = 'visible';
+    finishLine1.style.left = `${position}px`; // Adjust finish line to the left by 20 pixels
+    finishLine1.style.right = ''; // Clear any right value, just in case
+    finishLine1.style.visibility = 'visible';
+    finishLine2.style.left = `${position + 10}px`; // Adjust finish line to the left by 20 pixels
+    finishLine2.style.right = ''; // Clear any right value, just in case
+    finishLine2.style.visibility = 'visible';
 }
 
 // Convert file to Base64
@@ -430,7 +435,7 @@ async function saveSettings() {
         //alert(`Settings saved successfully!`);
     } catch (err) {
         console.error("Error saving settings:", err);
-        errorPopup("Failed to save settings.");
+        showError("Failed to save settings.");
     }
 }
 
@@ -469,7 +474,7 @@ async function loadSettings() {
         //alert(`Settings loaded successfully.`);
     } catch (error) {
         console.error("Error loading settings:", error);
-        errorPopup("Failed to load settings.");
+        showError("Failed to load settings.");
     }
 }
 
@@ -527,7 +532,8 @@ function updatePlayerList(players) {
 }
 
 function hideFinish(){
-    document.querySelector('.finish-line').style.visibility = 'hidden';
+    document.querySelector('.finish-line1').style.visibility = 'hidden';
+    document.querySelector('.finish-line2').style.visibility = 'hidden';
 }
 
 // Function to show the error message with auto-hide
@@ -615,11 +621,14 @@ function createControls() {
       }*/
 
       //Restart and play music
-      audio.load();
-      audio.play().catch(error => {
-        showError("An error occurred while trying to play the audio. Please try another file.");
-        console.error("Error during audio playback:", error);
-    });
+      if (audio.src){
+        console.log("here");
+        audio.load();
+        audio.play().catch(error => {
+            showError("An error occurred while trying to play the audio. Please try another file.");
+            console.error("Error during audio playback:", error);
+        });    
+       } 
 
       startRace();
     });

@@ -252,14 +252,24 @@ input[type="number"] {
     padding: 8px; /* Padding inside options */
 }
 
-.finish-line {
+.finish-line1 {
     position: absolute;
-    height: 100%; /* Full width of the container */
-    width: 20px; /* width of the finish line */
-    background-image: linear-gradient(45deg, black 25%, white 25%, white 50%, black 50%, black 75%, white 75%, white);
-    background-size: 20px 20px; /* Size of the checker pattern */
+    height: 100%; /* Full height of the container (screen) */
+    width: 10px; /* Width of the finish line */
+    background: 
+        repeating-linear-gradient(0deg, black 0, black 10px, white 10px, white 20px);
     z-index: 100; /* High z-index to bring it above other elements */
-    visibility: hidden;
+    visibility: hidden; /* Make it visible */
+}
+
+.finish-line2 {
+    position: absolute;
+    height: 100%; /* Full height of the container (screen) */
+    width: 10px; /* Width of the finish line */
+    background: 
+        repeating-linear-gradient(0deg, white 0, white 10px, black 10px, black 20px);
+    z-index: 100; /* High z-index to bring it above other elements */
+    visibility: hidden; /* Make it visible */
 }
 
 .error-popup {
@@ -289,6 +299,7 @@ input[type="number"] {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     z-index: 1001;
     visibility: hidden;
+    min-width: 150px;
 }
 
 .standings-div h3 {
@@ -300,10 +311,11 @@ input[type="number"] {
 .button-container {
     display: flex;
     justify-content: center; /* Centers the buttons horizontally */
-    gap: 10px; /* Adds space between the buttons */
+    gap: 20px; /* Adds space between the buttons */
 }
 
 .button-container button {
+    flex: 1; /* Makes each button take up equal space */
     padding: 5px 10px;
     font-size: 12px;
     cursor: pointer;
