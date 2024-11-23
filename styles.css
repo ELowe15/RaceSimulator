@@ -137,6 +137,41 @@ body {
     transform: translateX(-50%); /* Center horizontally only */
 }
 
+.player-list-title {
+    text-align: center;
+    text-decoration: underline;
+    font-size: 1.5em; /* Adjust font size as needed */
+    color: white; /* Set font color to white */
+    margin: 5px 0; /* Reduce vertical spacing */
+    padding: 0; /* Remove padding */
+}
+
+.custom-file-button {
+    background-color: #ff6a00; /* Orange background */
+    color: white; /* White text */
+    border: none;
+    cursor: pointer;
+    font-size: 13px; /* Button text size */
+    border-radius: 5px;
+    width: 100px; /* Fixed width for the button */
+    height: 25px; /* Fixed height for the button */
+    display: inline-block; /* Keeps button size in check with the content */
+    text-align: center; /* Center the text inside the button */
+    line-height: 25px; /* Vertically align text inside button */
+}
+
+.file-name-display {
+    font-size: 12px; /* Custom font size for the file name */
+    color: white; /* White text color */
+    line-height: 25px; /* Align text vertically */
+    height: 25px; /* Fixed height to match the button height */
+    width: 80px; /* Set a fixed width for the file name display */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Show ellipsis if text overflows */
+    white-space: nowrap; /* Prevent text from wrapping */
+    display: inline-block; /* Keep the display in line with the button */
+}
+
 .player-input {
     display: flex;
     align-items: center;
@@ -157,7 +192,7 @@ body {
 }
 
 .player-color {
-    width: 50px;
+    width: 40px;
     height: 30px;
 }
 

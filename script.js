@@ -68,6 +68,14 @@ function createPlayerListContainer() {
     if (!playerListContainer) { // Only create if it doesn't exist
         playerListContainer = document.createElement('div');
         playerListContainer.classList.add('player-list'); // Add the background class
+        
+        // Create the title element
+        const title = document.createElement('h2');
+        title.textContent = 'Player List';
+        title.classList.add('player-list-title'); // Add the CSS class
+
+        playerListContainer.appendChild(title);
+
         document.body.appendChild(playerListContainer); // Append to the body or a specific section
     }
 }
@@ -75,6 +83,12 @@ function createPlayerListContainer() {
 // Function to populate player list with given player data
 function loadPlayerList(players){
     playerListContainer.innerHTML = '';  // Clear the container
+    // Create the title element
+    const title = document.createElement('h2');
+    title.textContent = 'Player List';
+    title.classList.add('player-list-title'); // Add the CSS class
+
+    playerListContainer.appendChild(title);
     prevPlayerCount = 0;
     updatePlayerList(players);
 }
@@ -394,8 +408,13 @@ async function saveSettings() {
     const playerListData = [];
 
     for (let player of playerListContainer.children) {
+        //Title
+        if (player == playerListContainer.children[0]){
+            continue;
+        }
         const name = player.querySelector('.player-name').value.trim();
         const imageFile = player.querySelector('.player-image').files[0];
+        const imageName = player.querySelector('.file-name-display').textContent;
         const backgroundColor = player.querySelector('.player-color').value;
 
         let image = null;
@@ -403,7 +422,7 @@ async function saveSettings() {
             image = await fileToBase64(imageFile); // Convert image to Base64
         }
 
-        playerListData.push({ name, image, backgroundColor });
+        playerListData.push({ name, image, imageName, backgroundColor });
     }
 
     // Gather all settings data
@@ -493,14 +512,52 @@ function updatePlayerList(players) {
                     nameInput.classList.add('player-name');
                     playerDiv.appendChild(nameInput);
 
+                    // Create the file input element
                     const imageInput = document.createElement('input');
                     imageInput.type = 'file';
-                    imageInput.accept = 'image/*'; // Accept any image type
-                    imageInput.style.color = 'white';
+                    imageInput.accept = 'image/*'; // Accept only image files
                     imageInput.classList.add('player-image');
+                    // Hide the actual file input, since a a custom button is
+                    imageInput.style.display = 'none';
+
+                    // Create a custom button
+                    const customButton = document.createElement('button');
+                    customButton.textContent = 'Choose Image'; // Button text
+                    customButton.style.color = 'white'; // Style button text color
+                    customButton.classList.add('custom-file-button');
+
+                    // Create a label to show the chosen file name
+                    const fileNameDisplay = document.createElement('span');
+                    fileNameDisplay.textContent = players ? players[i].imageName: 'No file chosen'; // Initial text when no file is selected
+                    fileNameDisplay.classList.add('file-name-display');
+
+                    // Append the file input and label to the player div
+                    playerDiv.appendChild(customButton);
+                    playerDiv.appendChild(fileNameDisplay);
                     playerDiv.appendChild(imageInput);
 
+                    // Add event listener to the button to trigger the file input
+                    customButton.addEventListener('click', () => {
+                        imageInput.click();
+                    });
+
+                    // Handle file selection
+                    imageInput.addEventListener('change', (event) => {
+                        const file = event.target.files[0];
+                        if (file) {
+                            fileNameDisplay.textContent = file.name; // Show the selected file name
+                            playerDiv.loadedImage = null;
+                        } else {
+                            fileNameDisplay.textContent = 'No file chosen'; // If no file selected, show this text
+                        }
+                    });
+
+                    // Append the player div to the body or your desired container
+                    document.body.appendChild(playerDiv);
+
+                    // Store the loaded image (if needed)
                     playerDiv.loadedImage = null;
+
 
                     // Add background color input
                     const colorInput = document.createElement('input');
