@@ -10,7 +10,7 @@ This app lets users choose race settings, customize player details, and view rac
 - **Race Type Selection**: Choose between "Balanced," "Hectic," or "Close" race dynamics.
 - **Battle Royale Mode**: Toggle elimination-based gameplay for an intense, last-man-standing race.
 - **Sport Selection**: Select from Basketball, Football, Hockey, or Baseball themes, each with custom backgrounds and audio.
-- **Save & Load Settings**: Save your custom race settings and load them for future races.
+- **Save & Load Settings**: Save your custom race settings into JSON files and load them for future races. This saves images as well.
 - **Interactive Music**: Choose your preferred background music or load custom audio files.
 - **User-Friendly Error Messages**: Displays pop-up error messages if issues occur during audio playback, guiding the user to select a different audio file if necessary.
 
