@@ -184,16 +184,17 @@ function movePlayers() {
             const playerContainer = document.getElementsByClassName('player-container')[index]; // Select the container
             let position = currentPositions[index].position; // Get current left position
 
+            const remainingPlayers = currentPositions.filter((_, index) => !finished[index]); // Get players who haven't finished
+            const totalPlayers = remainingPlayers.length;
+            const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position); // Sort based on position
+            const rank = sortedPositions.findIndex(player => player.index === index);
+            //console.log("players" + totalPlayers);
+            //console.log("rank" + rank);
+
             switch(document.getElementById('raceTypeSelect').selectedIndex){
-                case CLOSE:
-                    const remainingPlayers = currentPositions.filter((_, index) => !finished[index]); // Get players who haven't finished
-                    const totalPlayers = remainingPlayers.length
-                    
+                case CLOSE:    
                     // A chance for players to speed up or slow down relative to their position unless they are the only one left
-                    if (!Math.floor(Math.random() * 10)%4 && totalPlayers != 1) {
-                        const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position); // Sort based on position
-                        const rank = sortedPositions.findIndex(player => player.index === index);
-                        
+                    if (!Math.floor(Math.random() * 10)%4 && totalPlayers != 1) { 
                         // Calculate the scaleFactor between -1 and 1
                         const scaleFactor = ((rank - (totalPlayers - 1) / 2) / ((totalPlayers - 1) / 2));
                         speedChange = (Math.random() + scaleFactor) * 0.5; // Proportional boost
@@ -204,18 +205,22 @@ function movePlayers() {
                 case HECTIC:
                     speedChange = (Math.random() - 0.5) * 1;
                     break;
-                default:
-                    if ((speeds[index] <= (minSpeed*2)) && (Math.floor(Math.random() * 5)%1)) {
-                        speedChange = minSpeed*3;
+                default: //BALANCED
+                    const oddsMult = 4 //Lower number means higher discrepency odds depending on rank
+                    const rankFactor = Math.trunc(Math.abs((rank - (totalPlayers - 1) / 2) / ((totalPlayers - 1) / 2)) * oddsMult);
+                    //console.log(rankFactor);
+                    // Determines the odds of addtional speed boost or slow
+                    const lucky1 = Math.floor(Math.random() * rankFactor) % oddsMult; 
+                    const lucky2 = Math.floor(Math.random() * rankFactor) % oddsMult;
+                    const lucky3 = Math.random() < 0.15;
+
+                    // Bottom third of racers
+                    if ((rank >= 2*totalPlayers/3) && lucky1 && lucky2 && lucky3) {
+                        speedChange = Math.random() * 0.5;
                     }
-                    else if ((speeds[index] <= (minSpeed*2.5)) && (Math.floor(Math.random() * 5)%1)) {
-                        speedChange = minSpeed + (Math.random()) * 0.5;
-                    }
-                    /*else if ((speeds[index] >= (maxSpeed*0.7)) && (Math.floor(Math.random() * 10)%3)){
-                        speedChange = -minSpeed*4;
-                    }*/
-                    else if ((speeds[index] >= (maxSpeed*0.8)) && (Math.floor(Math.random() * 10)%2)){
-                        speedChange = (Math.random() - 1) * 0.5 - minSpeed*1.5;
+                    // Top third of racers
+                    else if ((rank <= totalPlayers/3) && lucky1 && lucky2 && lucky3) {
+                        speedChange = (Math.random() - 1) * 0.5
                     } else {
                         // Adjust speed randomly
                         speedChange = (Math.random() - 0.5) * 0.5;
