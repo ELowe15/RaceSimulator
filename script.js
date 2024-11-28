@@ -51,6 +51,7 @@ let prevPlayerCount = 0;
 let playerListContainer; // Reference to player list container
 // Placeholder for standings
 let standingsCreated = false;
+let listVisible = false;
 
 //Sets the background image based on the selected sport
 function changeBackground(){
@@ -74,7 +75,19 @@ function createPlayerListContainer() {
         title.textContent = 'Player List';
         title.classList.add('player-list-title'); // Add the CSS class
 
+        const playerListContent = document.getElementById('playerListContent');
+        playerListContent.addEventListener('change', buildPlayerElements);
+
+        const closePlayer = document.createElement('button');
+        // Add text content to the button
+        closePlayer.textContent = 'Close';
+        closePlayer.className = 'close-button';
+        closePlayer.addEventListener('click', togglePlayerList);
+
+
         playerListContainer.appendChild(title);
+        playerListContainer.appendChild(playerListContent);
+        playerListContainer.appendChild(closePlayer);
 
         document.body.appendChild(playerListContainer); // Append to the body or a specific section
     }
@@ -82,15 +95,24 @@ function createPlayerListContainer() {
 
 // Function to populate player list with given player data
 function loadPlayerList(players){
-    playerListContainer.innerHTML = '';  // Clear the container
-    // Create the title element
-    const title = document.createElement('h2');
-    title.textContent = 'Player List';
-    title.classList.add('player-list-title'); // Add the CSS class
-
-    playerListContainer.appendChild(title);
+    document.getElementById('playerListContent').innerHTML = '';  // Clear the container
     prevPlayerCount = 0;
     updatePlayerList(players);
+}
+
+function adjustNameLabel(playerDiv) {
+    const nameLabel = playerDiv.querySelector('.player-name-label');
+    const playerImageDiv = playerDiv.querySelector('.player');
+    const IconDiv = playerDiv.querySelector('.icon-container');
+
+    // Get widths of the name label and the player image
+    const nameLabelWidth = nameLabel.offsetWidth;
+    const playerWidth = playerImageDiv.offsetWidth;
+
+    if (nameLabelWidth >= playerWidth) {
+        // Align the label to the left and let it expand to the right
+        IconDiv.style.alignItems = 'flex-start';
+    }
 }
 
 // Create player element including a color picker for background color
@@ -99,33 +121,51 @@ function createPlayerElement(player, index) {
     playerDiv.classList.add('player-container');
     playerDiv.style.position = 'absolute'; // Position the entire container absolutely
 
+    const IconDiv = document.createElement('div');
+    IconDiv.classList.add('icon-container');
+
     // Create a position label
     const positionLabel = document.createElement('div');
     positionLabel.classList.add('player-position-label');
-    positionLabel.innerText = `${index + 1}th`; // Set position (will update in the race)
-    playerDiv.appendChild(positionLabel); // Add position label to the left
-
+    positionLabel.innerText = `${index + 1}`; // Set position (will update in the race)
+    
     // Create a name label
     const nameLabel = document.createElement('div');
     nameLabel.classList.add('player-name-label');
     nameLabel.innerText = player.name;
-    playerDiv.appendChild(nameLabel); // Add name label above image
+    //nameLabel.style.fontSize = '1.2vw';
 
     // Create a player image div
     const playerImageDiv = document.createElement('div');
     playerImageDiv.classList.add('player');
     playerImageDiv.style.backgroundImage = `url('${player.image}')`;
     playerImageDiv.style.backgroundColor = player.backgroundColor; // Set the background color
-    playerImageDiv.style.left = '0px'; // Starting position
+    //playerImageDiv.style.left = '0px'; // Starting position
+    
+    // Get the viewport height in pixels and round down. Decimal values cause visual issues
+    const viewportHeight = window.innerHeight;
+    const playerSize = Math.floor(viewportHeight*10/100);
+    playerDiv.setAttribute('data-player-size', playerSize);
 
-    playerDiv.appendChild(playerImageDiv); // Add image below name
+    playerImageDiv.style.width = `${playerSize}px`
+    playerImageDiv.style.height = playerImageDiv.style.width;
+
+    playerDiv.appendChild(positionLabel); // Add position label to the left
+    IconDiv.appendChild(nameLabel); // Add name label above image
+    IconDiv.appendChild(playerImageDiv); // Add image below name
+    playerDiv.appendChild(IconDiv); // Add position label to the left
 
     const totalPlayers = players.length;
-    const BOTTOMOFFSET = 20;
-    const spacing = Math.min(400, (window.innerHeight - BOTTOMOFFSET) / (totalPlayers + 1)); // Calculate spacing based on number of players
+    const BottomOffset = Math.ceil(playerSize);
+    const spacing = (viewportHeight - BottomOffset) / (totalPlayers + 1); // Ensure spacing doesn't exceed a maximum
+
     playerDiv.style.top = `${(index + 1) * spacing}px`; // Space players vertically
+    // Clamp the position to ensure it fits within the window
 
     document.body.appendChild(playerDiv);
+    // Dynamically adjust name label position
+    adjustNameLabel(playerDiv);
+
     return playerDiv;
 }
 
@@ -136,12 +176,34 @@ function refreshPlayerElements(create){
         players.forEach((player, index) => createPlayerElement(player, index));
     } 
 }
+function buildPlayerElements(){
+    const playerDivs = document.querySelectorAll('.player-input');
+    const sportIndex = document.getElementById('sportSelect').selectedIndex;
+    players = [];
+    playerDivs.forEach((div) => {
+        const nameInput = div.querySelector('.player-name');
+        const randomPlaceHolder = div.querySelector('.place-holder');
+        const imageInput = div.querySelector('.player-image');
+        const colorInput = div.querySelector('.player-color');
+        const name = nameInput.value.trim();
+        const imageFile = imageInput.files[0];
+        const defaultImage = imageFile ? URL.createObjectURL(imageFile) : imageRoot + defaultPlayerImage[sportSelect.selectedIndex];
+        const image = div.loadedImage ? div.loadedImage : defaultImage;
+        const backgroundColor = colorInput.value || getRandomColor();
+        players.push({
+            name: name || randomPlaceHolder.textContent,
+            image,
+            backgroundColor
+            });
+    });
+    refreshPlayerElements(true);
+}
 
 // Start the race
 function startRace() {
     refreshPlayerElements(true);
     toggleControls(false); // Hide the controls
-    togglePlayerList(false);
+    togglePlayerList(true);
     showStandings(false);
     setFinishLinePosition();
     raceTime = parseInt(document.getElementById('raceTime').value, 10);
@@ -151,7 +213,7 @@ function startRace() {
     finished = [];
     
     const maxSpeed = 5*10/raceTime; // Maximum speed for the players
-    const trackLength = window.innerWidth - 100; // Total distance for the race
+    const trackLength = parseInt(document.querySelector('.finish-line1').style.left, 10); // Total distance for the race
 
     players.forEach((player, index) => {
         const baseSpeed = trackLength / (60 * raceTime);
@@ -166,13 +228,26 @@ function startRace() {
 // Move players
 function movePlayers() {
     const relativeFinish = parseInt(document.querySelector('.finish-line1').style.left, 10);
-    const finishLine = relativeFinish - (135);
-    let multiplier = 10;
-    if (document.getElementById('raceTypeSelect').selectedIndex == HECTIC){
-        multiplier = 20;
+    const playerDiv = document.getElementsByClassName('player-container')[0];
+    const playerSize = parseFloat(playerDiv.getAttribute('data-player-size'));
+    const labelSize = parseFloat(window.getComputedStyle(document.querySelector('.player-position-label')).width);
+    const finishLine = relativeFinish - (playerSize + labelSize);
+
+    let multiplier = 10*window.innerWidth/1917;
+    let tempMaxSpeed = 5*multiplier/raceTime; // Maximum speed for the players
+    let tempMinSpeed = 1*multiplier/raceTime; // Minimum speed for the players
+
+    const sport = document.getElementById('raceTypeSelect').selectedIndex;
+    if (sport == HECTIC){
+        tempMaxSpeed = tempMaxSpeed*2/1.5;
+        tempMinSpeed = tempMinSpeed/1.5;
     }
-    const maxSpeed = 5*multiplier/raceTime; // Maximum speed for the players
-    const minSpeed = 1*multiplier/raceTime; // Minimum speed for the players
+    else if (sport == CLOSE){
+        tempMaxSpeed = tempMaxSpeed/1.2;
+        tempMinSpeed = tempMinSpeed/1.2;
+    }
+    const maxSpeed = tempMaxSpeed; // Maximum speed for the players
+    const minSpeed = tempMinSpeed; // Minimum speed for the players
 
     // Store the current positions and their corresponding indices
     const currentPositions = players.map((_, index) => ({
@@ -194,7 +269,7 @@ function movePlayers() {
             switch(document.getElementById('raceTypeSelect').selectedIndex){
                 case CLOSE:    
                     // A chance for players to speed up or slow down relative to their position unless they are the only one left
-                    if (!Math.floor(Math.random() * 10)%4 && totalPlayers != 1) { 
+                    if ((Math.random() < 0.04) && totalPlayers != 1) { 
                         // Calculate the scaleFactor between -1 and 1
                         const scaleFactor = ((rank - (totalPlayers - 1) / 2) / ((totalPlayers - 1) / 2));
                         speedChange = (Math.random() + scaleFactor) * 0.5; // Proportional boost
@@ -203,7 +278,15 @@ function movePlayers() {
                     }
                     break;
                 case HECTIC:
-                    speedChange = (Math.random() - 0.5) * 1;
+                    if (Math.random() < 0.02){
+                        speedChange = -maxSpeed/2;
+                    }
+                    else if (Math.random() > 0.98){
+                        speedChange = maxSpeed/2;
+                    }
+                    else{
+                        speedChange = (Math.random() - 0.5) * 1;
+                    }
                     break;
                 default: //BALANCED
                     const oddsMult = 4 //Lower number means higher discrepency odds depending on rank
@@ -213,13 +296,14 @@ function movePlayers() {
                     const lucky1 = Math.floor(Math.random() * rankFactor) % oddsMult; 
                     const lucky2 = Math.floor(Math.random() * rankFactor) % oddsMult;
                     const lucky3 = Math.random() < 0.15;
+                    const isLucky = lucky1 && lucky2 && lucky3;
 
                     // Bottom third of racers
-                    if ((rank >= 2*totalPlayers/3) && lucky1 && lucky2 && lucky3) {
+                    if ((rank >= 2*totalPlayers/3) && isLucky) {
                         speedChange = Math.random() * 0.5;
                     }
                     // Top third of racers
-                    else if ((rank <= totalPlayers/3) && lucky1 && lucky2 && lucky3) {
+                    else if ((rank <= totalPlayers/3) && isLucky) {
                         speedChange = (Math.random() - 1) * 0.5
                     } else {
                         // Adjust speed randomly
@@ -363,9 +447,16 @@ function showBattleControls(isTrue){
     document.getElementById('playerNumberSection').style.display = control;
 }
 
-function togglePlayerList(visible) {
+function togglePlayerList(invisible) {
     if (playerListContainer) {
-        playerListContainer.style.display = visible ? 'block' : 'none'; // Show or hide based on the visible flag
+        if (invisible){
+            listVisible = false;
+            playerListContainer.style.display = 'none';
+          }
+        else{
+            playerListContainer.style.display = listVisible ? 'none' : 'flex'; // Show or hide based on the visible flag
+            listVisible = !listVisible;
+        }
     }
 }
 
@@ -377,23 +468,25 @@ function setFinishLinePosition() {
     let TempPosition;
     switch(document.getElementById('sportSelect').selectedIndex){
         case BASKETBALL:
-            TempPosition = window.innerWidth - window.innerWidth*90/1912;
+            TempPosition = window.innerWidth*1822/1912;
             break;
         case FOOTBALL:
-            TempPosition = window.innerWidth - window.innerWidth*215/1912;
+            TempPosition = window.innerWidth*1697/1912;
             break;
         case HOCKEY:
-            TempPosition = window.innerWidth - window.innerWidth*90/1912;
+            TempPosition = window.innerWidth*1822/1912;
             break;
         case BASEBALL:
-            TempPosition = window.innerWidth - window.innerWidth*450/1912;
+            TempPosition = window.innerWidth*1462/1912;
             break;
     }
     const position = TempPosition;
-    finishLine1.style.left = `${position}px`; // Adjust finish line to the left by 20 pixels
+    finishLine1.style.left = `${position}px`; 
     finishLine1.style.right = ''; // Clear any right value, just in case
     finishLine1.style.visibility = 'visible';
-    finishLine2.style.left = `${position + 10}px`; // Adjust finish line to the left by 20 pixels
+    const computedStyle = window.getComputedStyle(finishLine2);
+    const finishLineWidth = parseFloat(computedStyle.width);
+    finishLine2.style.left = `${position + finishLineWidth}px`; // Adjust finish to right of other line
     finishLine2.style.right = ''; // Clear any right value, just in case
     finishLine2.style.visibility = 'visible';
 }
@@ -411,12 +504,10 @@ async function fileToBase64(file) {
 async function saveSettings() {
     // Gather player list data with Base64 image encoding
     const playerListData = [];
+    const playerListContent = document.getElementById('playerListContent');
 
-    for (let player of playerListContainer.children) {
-        //Title
-        if (player == playerListContainer.children[0]){
-            continue;
-        }
+    for (let player of playerListContent.children) {
+        
         const name = player.querySelector('.player-name').value.trim();
         const imageFile = player.querySelector('.player-image').files[0];
         const imageName = player.querySelector('.file-name-display').textContent;
@@ -506,6 +597,7 @@ function updatePlayerList(players) {
     if (document.getElementById('numberOfPlayers')){
         const numberInput = document.getElementById('numberOfPlayers');
         const numPlayers = parseInt(numberInput.value, 10);
+        const playerListContent = document.getElementById('playerListContent');
             if (numPlayers > prevPlayerCount) {
                 for (let i = prevPlayerCount; i < numPlayers; i++) {
                     const playerDiv = document.createElement('div');
@@ -513,9 +605,11 @@ function updatePlayerList(players) {
 
                     const nameInput = document.createElement('input');
                     nameInput.placeholder = `Player ${i + 1} Name`;
-
                     nameInput.classList.add('player-name');
-                    playerDiv.appendChild(nameInput);
+
+                    const randomPlaceHolder = document.createElement('label');
+                    randomPlaceHolder.textContent = getRandomName(document.getElementById('sportSelect').selectedIndex);
+                    randomPlaceHolder.classList.add('place-holder');
 
                     // Create the file input element
                     const imageInput = document.createElement('input');
@@ -537,6 +631,8 @@ function updatePlayerList(players) {
                     fileNameDisplay.classList.add('file-name-display');
 
                     // Append the file input and label to the player div
+                    playerDiv.appendChild(nameInput);
+                    playerDiv.appendChild(randomPlaceHolder);
                     playerDiv.appendChild(customButton);
                     playerDiv.appendChild(fileNameDisplay);
                     playerDiv.appendChild(imageInput);
@@ -576,7 +672,7 @@ function updatePlayerList(players) {
                         playerDiv.loadedImage = players[i].image;
                     }
 
-                    playerListContainer.appendChild(playerDiv);
+                    playerListContent.appendChild(playerDiv);
                 }
             }
             else if (numPlayers == 0){
@@ -584,7 +680,7 @@ function updatePlayerList(players) {
             }
             else if (numPlayers < prevPlayerCount){
                 for (let i = prevPlayerCount - 1; i >= numPlayers; i--) {
-                    playerListContainer.removeChild(playerListContainer.children[i]);
+                    playerListContent.removeChild(playerListContent.children[i]);
                 }
             }
             if (numPlayers){
@@ -631,15 +727,19 @@ function createControls() {
     // Listen for changes to the selected sport
     sportSelect.addEventListener('change', () => {
         changeBackground();
-        refreshPlayerElements(false);
+        const playerDivs = document.querySelectorAll('.player-input');
+        const sportIndex = document.getElementById('sportSelect').selectedIndex;
+        players = [];
+        playerDivs.forEach((div) => {
+            div.querySelector('.place-holder').textContent = getRandomName(sportIndex);
+        });
+        buildPlayerElements();
         hideFinish();
     });
 
-    let visible = true;
     // Event Listeners for buttons
     playerListButton.addEventListener('click', () => {
-      togglePlayerList(visible);
-      visible = !visible;
+      togglePlayerList();
     });
   
     startButton.addEventListener('click', () => {
@@ -651,24 +751,6 @@ function createControls() {
         showError("Please enter the amount of players before starting the race.");
         return;
       }
-      const playerDivs = document.querySelectorAll('.player-input');
-      const sportIndex = document.getElementById('sportSelect').selectedIndex;
-      players = [];
-      playerDivs.forEach((div) => {
-        const nameInput = div.querySelector('.player-name');
-        const imageInput = div.querySelector('.player-image');
-        const colorInput = div.querySelector('.player-color');
-        const name = nameInput.value.trim();
-        const imageFile = imageInput.files[0];
-        const defaultImage = imageFile ? URL.createObjectURL(imageFile) : imageRoot + defaultPlayerImage[sportSelect.selectedIndex];
-        const image = div.loadedImage ? div.loadedImage : defaultImage;
-        const backgroundColor = colorInput.value || getRandomColor();
-        players.push({
-          name: name || getRandomName(sportIndex),
-          image,
-          backgroundColor
-        });
-      });
 
       if (document.getElementById('battleRoyaleToggle').checked){
         showBattleControls(true);
@@ -716,6 +798,7 @@ function createControls() {
         }
         numberInput.style.backgroundColor = ""; // Reset to default
         updatePlayerList();
+        buildPlayerElements();
     });
 
     loadMusicButton.addEventListener('click', () => {
@@ -747,8 +830,14 @@ function initializeUI() {
     if (!document.getElementById('playerInputs')) {
         createPlayerListContainer();
         updatePlayerList();
+        buildPlayerElements();
     }
 }
 
 // Start the application
 initializeUI();
+
+window.addEventListener('resize', () => {
+    buildPlayerElements();
+    setFinishLinePosition();
+});

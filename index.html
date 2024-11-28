@@ -44,13 +44,12 @@
 
     <div class="finish-line1"></div>
     <div class="finish-line2"></div>
+    <!-- Error message for user-->
+    <div id="errorPopup" class="error-popup"></div>
 
     <div class="controls">
 
-         <!-- Sport Selection Section -->
-         <div class="control-container">
-            <label class="title" for="sportSelect">Fantasy Draft Race</label>
-        </div>
+        <label class="title" >Fantasy Draft Race</label>
 
         <!-- Race Type Section -->
         <div class="control-container">
@@ -81,7 +80,7 @@
 
         <!-- Race Time Section -->
         <div class="control-container" id="raceTimeSection">
-            <label class="label" for="raceTime">Approx Race Time (s):</label>
+            <label class="label" for="raceTime">Approximate Race Time (s):</label>
             <input type="number" id="raceTime" value="15" min="1">
         </div>
 
@@ -102,21 +101,20 @@
             <button id="loadButton">Load Settings</button>
         </div>
 
-        <div class="standings-div" id="standingsDiv" style="visibility: hidden;">
-            <h3>Standings</h3>
-            <div id="standingsContent"></div>
-            <div class="button-container">
-                <button id="copyButton">Copy</button>
-                <button id="closeButton">Close</button>
-            </div>
-        </div>
-
-        <!-- Error message for user-->
-        <div id="errorPopup" class="error-popup"></div>
-
         <!-- Music File Input (hidden) -->
         <input type="file" id="musicFileInput" accept="audio/*,video/mp4" style="display: none;">
     </div>
+
+    <div class="standings-div" id="standingsDiv" style="visibility: hidden;">
+        <h3>Standings</h3>
+        <div id="standingsContent"></div>
+        <div class="button-container">
+            <button id="copyButton">Copy</button>
+            <button id="closeButton">Close</button>
+        </div>
+    </div>
+
+    <div id="playerListContent"></div>
 
     <script src="raceTools.js"></script>
     <script src="script.js"></script>

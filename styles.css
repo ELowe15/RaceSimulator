@@ -33,6 +33,14 @@ body {
 
 .player-container {
     display: flex;
+    flex-direction: row; /* Stack name above image */
+    align-items: center; /* Center align items */
+    justify-content: flex-end; /* Align items to the bottom */
+    position: relative; /* Ensure proper stacking */
+}
+
+.icon-container {
+    display: flex;
     flex-direction: column; /* Stack name above image */
     align-items: center; /* Center align items */
     justify-content: flex-end; /* Align items to the bottom */
@@ -40,8 +48,6 @@ body {
 }
 
 .player {
-    width: 90px; /* Player size */
-    height: 90px; /* Player size */
     background-size: cover; /* Scale the image to cover the player */
     border-radius: 50%; /* Makes it a circle */
     border: 2px solid black; /* Add a border for visibility */
@@ -51,187 +57,102 @@ body {
 .player-name-label {
     color: white; /* Color of the name label */
     font-weight: bold; /* Bold text for better visibility */
+    font-size: 2vh;
+    margin-top: -2vh;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); /* Shadow for better readability */
     margin-bottom: 0px; /* Space between name and image */
+    overflow: hidden; /* Ensure content stays within bounds */
+    white-space: nowrap; /* Prevent wrapping */
+    text-overflow: ellipsis;
+    max-width: 14vh;
 }
 
 .player-position-label {
     color: white; /* Color of the position label */
     font-weight: bold; /* Bold text for better visibility */
+    font-size: 1.2vw;
+    width: 3vw;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); /* Shadow for better readability */
-    font-size: 1em; /* Restored font size */
-    margin-right: 130px; /* Space between position label and player */
-    margin-bottom: -75px; /* Space between name and image */
     display: inline-block; /* Ensure it does not take full width */
-    width: 50px; /* Ensure a consistent width */
     text-align: center; /* Align text to the center of the label */
 }
 
 .title {
-    font-size: 1.5rem; /* Adjust the font size */
-    font-weight: bold; /* Make it bold */
-    text-align: center; /* Center align the text */
-    text-decoration: underline; /* Underline the text */
-    margin-bottom: 10px; /* Space between the label and other elements */
+    font-size: 2vw; /* Scalable font size */
+    font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
+    margin-bottom: 2vh; /* Use vh for vertical spacing */
 }
 
 .controls {
     z-index: 1000;
     background-color: rgba(20, 20, 20, 0.8); /* Darker background */
-    padding: 20px;
+    padding: 1vw;
     border: 2px solid #ff6a00; /* Orange border */
-    border-radius: 8px;
+    border-radius: 0.5vw;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
     align-items: center;
     color: white; /* White text */
-    width: 250px; /* Fixed width for control box */
+    width: 20vw; /* Fixed width for control box */
+    position: absolute; /* Positions the element relative to the nearest positioned ancestor */
+    left: 50%; /* 50% from the left */
+    transform: translate(-50%); /* Adjusts the element back to truly center it */
 }
 
-.controls input {
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid #ff6a00; /* Orange border */
-    border-radius: 5px;
-    background-color: #333; /* Darker input background */
-    color: white; /* Input text color */
-    width: 100%; /* Full width */
-}
-
-.controls button {
-    margin-top: 10px;
-    padding: 10px 15px;
-    background-color: #ff6a00; /* Orange background */
-    color: white; /* Button text color */
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s; /* Smooth transition */
-    width: 100%; /* Full width for buttons */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-}
-
-.controls button:hover {
-    background-color: #e95e00; /* Darker orange on hover */
-}
-
-.player-list {
-    background-color: rgba(20, 20, 20, 0.8); /* Solid dark background */
-    border: 2px solid #ff6a00; /* Orange border */
-    border-radius: 8px; /* Rounded corners */
-    padding: 10px; /* Space inside player list */
-    display: none; /* Flexbox for player list */
-    flex-direction: column; /* Stack players vertically */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    width: 400px; /* Fixed width for player list */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow for depth */
-    height: auto; /* Set a height based on content or desired layout */
-
-    /* Center on screen */
-    position: absolute;
-    top: 0%; /* Adjust to control distance from the top */
-    left: 50%;
-    transform: translateX(-50%); /* Center horizontally only */
-}
-
-.player-list-title {
-    text-align: center;
-    text-decoration: underline;
-    font-size: 1.5em; /* Adjust font size as needed */
-    color: white; /* Set font color to white */
-    margin: 5px 0; /* Reduce vertical spacing */
-    padding: 0; /* Remove padding */
-}
-
-.custom-file-button {
-    background-color: #ff6a00; /* Orange background */
-    color: white; /* White text */
-    border: none;
-    cursor: pointer;
-    font-size: 13px; /* Button text size */
-    border-radius: 5px;
-    width: 100px; /* Fixed width for the button */
-    height: 25px; /* Fixed height for the button */
-    display: inline-block; /* Keeps button size in check with the content */
-    text-align: center; /* Center the text inside the button */
-    line-height: 25px; /* Vertically align text inside button */
-}
-
-.file-name-display {
-    font-size: 12px; /* Custom font size for the file name */
-    color: white; /* White text color */
-    line-height: 25px; /* Align text vertically */
-    height: 25px; /* Fixed height to match the button height */
-    width: 80px; /* Set a fixed width for the file name display */
-    overflow: hidden; /* Hide overflow text */
-    text-overflow: ellipsis; /* Show ellipsis if text overflows */
-    white-space: nowrap; /* Prevent text from wrapping */
-    display: inline-block; /* Keep the display in line with the button */
-}
-
-.player-input {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 2px solid #ff6a00; /* Orange border */
-    border-radius: 8px; /* Rounded corners */
-    padding: 2px; /* Space inside player list */
-    margin: 4px;
-}
-
-.player-name {
-    width: 120px;
-    padding: 5px;
-}
-
-.player-image {
-    width: 180px;
-}
-
-.player-color {
-    width: 40px;
-    height: 30px;
-}
-
-.control-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0px;
-    width: 100%; /* Full width */
-    margin: 5px;
-}
-
-/* Container for the label and checkbox */
+.control-container,
 .battle-container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Aligns items to fill the width */
-    width: 100%; /* Full width */
-    margin: 5px 0; /* Space around the container */
+    justify-content: space-between;
+    width: 100%;
+    height: 3vh;
+    margin: 1vh;
 }
 
-/* Label styling */
+.controls input,
+.controls button {
+    border: 1px solid #ff6a00;
+    border-radius: 0.5vw; /* Use vw for rounded corners */
+    background-color: #333;
+    color: white;
+    height: 100%;
+    width: 100%;
+}
+
+.controls button {
+    height: 4vh;
+    margin: 0.5vh;
+    font-size: 1vw;
+    width: 75%;
+    background-color: #ff6a00;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #e95e00; /* Darker orange on hover */
+}
+
 .label {
-    font-size: 16px;
+    font-size: 1vw; /* Use rem for scalable font size */
     color: white;
     white-space: nowrap; /* Prevent label from breaking into multiple lines */
-    margin-right: 10px; /* Optional: Space between label and checkbox */
-    flex-grow: 1; /* Allow label to grow and take up remaining space */
+    margin-right: 2vw;
+    flex-grow: 1;
 }
 
 /* Checkbox styling */
 .checkbox {
     appearance: none; /* Remove default checkbox styling */
-    width: 20px; /* Custom width */
-    height: 20px; /* Custom height */
+    width: 10vw;
+    height: 5vw;
     transform: scale(0.2, 1); /* Scale width and height independently */
     background-color: rgba(20, 20, 20, 0.8); /* Dark background */
     border: 2px solid #ff6a00; /* Orange border to match theme */
-    border-radius: 4px;
+    border-radius: 1vw; /* Use vw for border radius */
     cursor: pointer; /* Pointer cursor */
     /* Remove any extra space */
     padding: 0;
@@ -245,33 +166,34 @@ body {
 }
 
 .checkbox:checked::before {
-    content: '✓'; /* Checkmark symbol */
-    color: white; /* Color of the checkmark */
-    font-size: 16px; /* Adjust size to fit */
+    content: '✓';
+    color: white;
+    font-size: 1vw;
     font-weight: bold;
-    transform: scale(5, 1); /* Scale width and height relative to checkbox */
+    transform: scale(5, 1);
 }
 
 input[type="number"] {
     background-color: #333;
     color: white;
     border: 1px solid #ff6a00;
-    border-radius: 5px;
-    padding: 10px;
-    width: 50px;
+    border-radius: 0.5vw;
+    padding: 0.3vw;
+    font-size: 1vw;
+    width: 5vw;
+    height: 2vh
 }
 
-/* General styling for dropdown */
 .styled-dropdown {
-    background-color: rgba(20, 20, 20, 0.8); /* Dark semi-transparent background */
-    color: #ffffff; /* White text color */
-    padding: 8px 40px 8px 10px; /* Padding inside dropdown */
-    border: 2px solid #ff6a00; /* Orange border to match theme */
-    border-radius: 8px; /* Rounded corners */
-    font-size: 16px; /* Font size */
-    width: 150px; /* Adjust width as needed */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow for depth */
-    cursor: pointer; /* Pointer cursor */
+    background-color: rgba(20, 20, 20, 0.8);
+    color: white;
+    border: 2px solid #ff6a00;
+    border-radius: 0.5vw;
+    font-size: 1vw;
+    width: 8vw;
+    height: 4vh;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
 }
 
 /* Style to keep the border color consistent on focus */
@@ -287,12 +209,109 @@ input[type="number"] {
     padding: 8px; /* Padding inside options */
 }
 
+.player-list {
+    background-color: rgba(20, 20, 20, 0.8);
+    border: 2px solid #ff6a00;
+    border-radius: 0.5vw;
+    padding: 0.5vw;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 25vw; /* Use vw for width */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    height: auto;
+    position: absolute;
+    top: 0vh;
+    left: 15%;
+    transform: translateX(-15%);
+}
+
+.player-list-title {
+    text-align: center;
+    text-decoration: underline;
+    font-size: 3vh;
+    color: white;
+    margin: 1vh 0;
+    padding-bottom: 1vh; /* Remove padding */
+}
+
+.custom-file-button {
+    background-color: #ff6a00;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8vw; /* Use rem for scalable font size */
+    border-radius: 0.3vw;
+    width: 8vw; /* Use vw for width */
+    height: 3.5vh; /* Use vh for height */
+    display: inline-block;
+    text-align: center;
+    line-height: 3vh;
+}
+
+.file-name-display {
+    font-size: 0.8vw;
+    color: white;
+    line-height: 3vh;
+    height: 3vh;
+    width: 5vw; /* Use vw for width */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.player-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5vw; /* Adjust gap with vw */
+    border: 2px solid #ff6a00;
+    border-radius: 0.5vw;
+    padding: 0.2vw;
+    margin: 0.4vh;
+}
+
+.player-name {
+    height: 3vh;
+    font-size: 0.8vw;
+    width: 7vw; /* Use vw for width */
+}
+
+.player-image {
+    width: 1px;
+}
+
+.player-color {
+    height: 3vh;
+    width: 1.5vw; /* Use vw for width */
+}
+
+.place-holder {
+    display: none;
+}
+
+.close-button {
+    background-color: #ff6a00;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8vw; /* Use rem for scalable font size */
+    border-radius: 0.3vw;
+    width: 6vw; /* Use vw for width */
+    height: 3.5vh; /* Use vh for height */
+    display: inline-block;
+    text-align: center;
+    line-height: 3vh;
+    margin: 0.5vw;
+}
+
 .finish-line1 {
     position: absolute;
     height: 100%; /* Full height of the container (screen) */
-    width: 10px; /* Width of the finish line */
+    width: 0.5vw; /* Width of the finish line */
     background: 
-        repeating-linear-gradient(0deg, black 0, black 10px, white 10px, white 20px);
+        repeating-linear-gradient(0deg, black 0, black 0.5vw, white 0.5vw, white 1vw);
     z-index: 100; /* High z-index to bring it above other elements */
     visibility: hidden; /* Make it visible */
 }
@@ -300,63 +319,74 @@ input[type="number"] {
 .finish-line2 {
     position: absolute;
     height: 100%; /* Full height of the container (screen) */
-    width: 10px; /* Width of the finish line */
+    width: 0.5vw; /* Width of the finish line */
     background: 
-        repeating-linear-gradient(0deg, white 0, white 10px, black 10px, black 20px);
+        repeating-linear-gradient(0deg, white 0, white 0.5vw, black 0.5vw, black 1vw);
     z-index: 100; /* High z-index to bring it above other elements */
     visibility: hidden; /* Make it visible */
 }
 
 .error-popup {
-    display: none; /* Hidden by default */
+    display: none;
     position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px;
-    background-color: #f44336; /* Red background for error */
+    top: 0.1vw;
+    right: 0.1vw;
+    padding: 2vh;  
+    font-size: 0.8vw;
+    background-color: #f44336;
     color: white;
-    border-radius: 5px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 0.5vw;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 1000;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out; /* Smooth fade-in and fade-out */
+    transition: opacity 0.5s ease-in-out;
 }
 
 .standings-div {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: black; /* Darker background */
-    padding: 10px;
-    border: 2px solid #ff6a00; /* Orange border */
-    border-radius: 8px;
+    top: 0%;
+    left: 74%;
+    transform: translate(-74%);
+    background-color: black;
+    font-size: 1vw;
+    color: white;
+    padding: 2vh;
+    border: 2px solid #ff6a00;
+    border-radius: 0.5vw;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     z-index: 1001;
     visibility: hidden;
-    min-width: 150px;
+    min-width: 5vw; /* Use vw for width */
+    font-size: 1vw;
 }
 
 .standings-div h3 {
     margin: 0;
-    font-size: 20px;
+    padding: 0.5vh;
+    font-size: 1.5vw;
     text-align: center; /* Centers the word "Standings" */
+    text-decoration: underline; /* Underline the text */
 }
 
 .button-container {
     display: flex;
     justify-content: center; /* Centers the buttons horizontally */
-    gap: 20px; /* Adds space between the buttons */
+    gap: 1vw; /* Adds space between the buttons */
 }
 
 .button-container button {
     flex: 1; /* Makes each button take up equal space */
-    padding: 5px 10px;
-    font-size: 12px;
+    padding: 0.2vw;
+    font-size: 0.8vw;
+    width: 6vw;
     cursor: pointer;
     transition: background-color 0.3s ease;
     background-color: #ff6a00; /* Orange background */
     color: white; /* Button text color */
     border: none;
     border-radius: 5px;
+}
+
+.button-container button:hover {
+    background-color: #e95e00; /* Darker orange on hover */
 }
