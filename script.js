@@ -746,7 +746,7 @@ function createControls() {
             div.querySelector('.place-holder').textContent = getRandomName(sportIndex);
         });
         buildPlayerElements();
-        hideFinish();
+        setFinishLinePosition();
     });
 
     // Event Listeners for buttons
@@ -868,6 +868,7 @@ function initializeUI() {
         createPlayerListContainer();
         updatePlayerList();
         buildPlayerElements();
+        setFinishLinePosition();
     }
 }
 
