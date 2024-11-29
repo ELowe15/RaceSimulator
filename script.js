@@ -98,6 +98,7 @@ function loadPlayerList(players){
     document.getElementById('playerListContent').innerHTML = '';  // Clear the container
     prevPlayerCount = 0;
     updatePlayerList(players);
+    buildPlayerElements();
 }
 
 function adjustNameLabel(playerDiv) {
@@ -710,6 +711,17 @@ function showError(message, duration = 3000) {
     }, duration);
 }
 
+function inputCheck(input){
+    if (parseInt(input.value) <= 0) {
+        input.value = '1';
+    }
+    else if (!input.value){
+        input.style.backgroundColor = "red";
+        return;
+    }
+    input.style.backgroundColor = ""; // Reset to default
+}
+
 function createControls() {
     const playerListButton = document.getElementById('playerListButton');
     const startButton = document.getElementById('startButton');
@@ -778,25 +790,50 @@ function createControls() {
     });
 
     raceTimeInput.addEventListener('input', () => {
-        if (raceTimeInput.value == '0') {
-            raceTimeInput.value = '1';
+        inputCheck(raceTimeInput);
+    });
+
+    // Add a scroll event listener
+    raceTimeInput.addEventListener('wheel', (event) => {
+        event.preventDefault(); // Prevent the page from scrolling
+
+        // Determine the current value of the input
+        let currentValue = parseInt(raceTimeInput.value) || 0;
+
+        // Adjust the value based on the scroll direction
+        if (event.deltaY < 0) {
+            // Scrolling up: increment the value
+            raceTimeInput.value = currentValue + 1;
+        } else {
+            // Scrolling down: decrement the value
+            raceTimeInput.value = currentValue - 1;
         }
-        else if (!raceTimeInput.value){
-            raceTimeInput.style.backgroundColor = "red";
-            return;
-        }
-        raceTimeInput.style.backgroundColor = ""; // Reset to default
+        inputCheck(raceTimeInput);
     });
 
     numberInput.addEventListener('input', () => {
-        if (numberInput.value == '0') {
-            numberInput.value = prevPlayerCount;
+        inputCheck(numberInput);
+        updatePlayerList();
+        buildPlayerElements();
+    });
+
+
+    // Add a scroll event listener
+    numberInput.addEventListener('wheel', (event) => {
+        event.preventDefault(); // Prevent the page from scrolling
+
+        // Determine the current value of the input
+        let currentValue = parseInt(numberInput.value) || 0;
+
+        // Adjust the value based on the scroll direction
+        if (event.deltaY < 0) {
+            // Scrolling up: increment the value
+            numberInput.value = currentValue + 1;
+        } else {
+            // Scrolling down: decrement the value
+            numberInput.value = currentValue - 1;
         }
-        else if (!numberInput.value){
-            numberInput.style.backgroundColor = "red";
-            return;
-        }
-        numberInput.style.backgroundColor = ""; // Reset to default
+        inputCheck(numberInput);
         updatePlayerList();
         buildPlayerElements();
     });

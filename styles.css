@@ -130,6 +130,10 @@ body {
     background-color: #ff6a00;
     cursor: pointer;
     transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 button:hover {
@@ -147,9 +151,9 @@ button:hover {
 /* Checkbox styling */
 .checkbox {
     appearance: none; /* Remove default checkbox styling */
-    width: 10vw;
-    height: 5vw;
-    transform: scale(0.2, 1); /* Scale width and height independently */
+    width: 3vh;
+    height: 3vh;
+    transform: scale(0.15, 1); /* Scale width and height independently */
     background-color: rgba(20, 20, 20, 0.8); /* Dark background */
     border: 2px solid #ff6a00; /* Orange border to match theme */
     border-radius: 1vw; /* Use vw for border radius */
@@ -170,7 +174,7 @@ button:hover {
     color: white;
     font-size: 1vw;
     font-weight: bold;
-    transform: scale(5, 1);
+    transform: scale(6.33, 1);
 }
 
 input[type="number"] {
@@ -210,10 +214,11 @@ input[type="number"] {
 }
 
 .player-list {
+    max-height: 100vh;
     background-color: rgba(20, 20, 20, 0.9);
     border: 2px solid #ff6a00;
     border-radius: 0.5vw;
-    padding: 0.5vw;
+    padding: 0.2vw;
     display: none;
     flex-direction: column;
     justify-content: center;
@@ -344,6 +349,7 @@ input[type="number"] {
 
 .standings-div {
     position: fixed;
+    max-height: 100vh; /* Account for other content like header and buttons */
     top: 0%;
     left: 74%;
     transform: translate(-74%);
@@ -366,6 +372,15 @@ input[type="number"] {
     font-size: 1.5vw;
     text-align: center; /* Centers the word "Standings" */
     text-decoration: underline; /* Underline the text */
+}
+
+.scrollable-content {
+    max-height: 80vh; /* Account for other content like header and buttons */
+    overflow-y: auto; /* Add vertical scrolling when content exceeds max height */
+    width: 100%;
+    margin-top: 0.5vh;
+    margin-bottom: 0.5vh;
+    box-sizing: border-box;
 }
 
 .button-container {
