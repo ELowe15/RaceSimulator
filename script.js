@@ -794,10 +794,10 @@ function createControls() {
       placements.length = 0; // Clear previous placements
 
       // Update the audio source based on the selected index
-      if(!isSongSelected){
+      /*if(!isSongSelected){
         const defaultSongPath = musicRoot + songs[document.getElementById('sportSelect').selectedIndex];
         audio.src = defaultSongPath;
-      }
+      }*/
 
        handleStartRaceWithRecording();
     });
