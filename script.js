@@ -200,6 +200,25 @@ function buildPlayerElements(){
     refreshPlayerElements(true);
 }
 
+async function handleStartRaceWithRecording() {
+    if (document.getElementById("recordToggle").checked) {
+        await startRecording();
+        // Add delay to let the recording buffer initialize
+        await new Promise(resolve => setTimeout(resolve, 500));  // 1000 ms = 1 second
+    }
+
+    // Restart and play music
+    if (audio.src) {
+        audio.load();
+        audio.play().catch(error => {
+            showError("An error occurred while trying to play the audio. Please try another file.");
+            console.error("Error during audio playback:", error);
+        });
+    }
+
+    startRace();  // Your main race function
+}
+
 // Start the race
 function startRace() {
     refreshPlayerElements(true);
@@ -360,6 +379,7 @@ function endRace() {
         {
             placements = tempPlacements.slice();
             showStandings();
+            stopRecording();
             return;
         }
     let loser = tempPlacements[tempPlacements.length - 1];
@@ -376,6 +396,9 @@ function endRace() {
     if (players.length == 1){
         showBattleControls(false);
         placements.unshift(tempPlacements[0]); // Add the loser to the start of the placements array
+        showStandings();
+        stopRecording();
+        return;
     }
     showStandings();
 }
@@ -771,22 +794,12 @@ function createControls() {
       placements.length = 0; // Clear previous placements
 
       // Update the audio source based on the selected index
-      /*if(!isSongSelected){
+      if(!isSongSelected){
         const defaultSongPath = musicRoot + songs[document.getElementById('sportSelect').selectedIndex];
         audio.src = defaultSongPath;
-      }*/
+      }
 
-      //Restart and play music
-      if (audio.src){
-        console.log("here");
-        audio.load();
-        audio.play().catch(error => {
-            showError("An error occurred while trying to play the audio. Please try another file.");
-            console.error("Error during audio playback:", error);
-        });    
-       } 
-
-      startRace();
+       handleStartRaceWithRecording();
     });
 
     raceTimeInput.addEventListener('input', () => {

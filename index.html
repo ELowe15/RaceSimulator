@@ -99,6 +99,12 @@
             <input type="number" id="numberOfPlayers" value="12" min="1" max="30">
         </div>
 
+        <!-- Battle Royale Mode Section -->
+        <div id="recordSection" class="battle-container">
+            <label class="label" for="recordToggle">Record Race:</label>
+            <input type="checkbox" id="recordToggle" class="checkbox">
+        </div>
+
         <!-- Buttons -->
         <button id="playerListButton">Player List</button>
         <button id="startButton">Start Race</button>
@@ -126,6 +132,7 @@
     <div id="playerListContent" class="scrollable-content"></div>
 
     <script src="raceTools.js"></script>
+    <script src="recorder.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
