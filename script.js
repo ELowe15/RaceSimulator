@@ -467,6 +467,7 @@ function showBattleControls(isTrue){
     document.getElementById('saveButton').style.display = control;
     document.getElementById('loadButton').style.display = control;
     document.getElementById('battleSection').style.display = control;
+    document.getElementById('recordSection').style.display = control;
     document.getElementById('sportSection').style.display = control;
     document.getElementById('playerNumberSection').style.display = control;
 }
@@ -869,6 +870,20 @@ function createControls() {
     loadButton.addEventListener('click', loadSettings);
   }  
 
+function adjustToggles(){
+    const battleLabel = document.querySelector('label[for="battleRoyaleToggle"]');
+    const recordLabel = document.querySelector('label[for="recordToggle"]');
+
+    const battleText = battleLabel.textContent.trim();
+    const recordText = recordLabel.textContent.trim();
+
+    if (recordText.length < battleText.length) {
+        const diff = battleText.length - recordText.length;
+        // Add non-breaking spaces (&nbsp;) to visually pad the shorter label
+        recordLabel.innerHTML = recordText + '&nbsp;'.repeat(diff);
+    }
+}
+
 // Initialize UI
 function initializeUI() {
     // Create controls and player inputs once
@@ -882,6 +897,7 @@ function initializeUI() {
         updatePlayerList();
         buildPlayerElements();
         setFinishLinePosition();
+        adjustToggles();
     }
 }
 
@@ -891,4 +907,5 @@ initializeUI();
 window.addEventListener('resize', () => {
     buildPlayerElements();
     setFinishLinePosition();
+    adjustToggles();
 });
