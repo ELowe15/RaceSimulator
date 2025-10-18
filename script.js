@@ -145,7 +145,7 @@ function createPlayerElement(player, index) {
     
     // Get the viewport height in pixels and round down. Decimal values cause visual issues
     const viewportHeight = window.innerHeight;
-    const playerSize = Math.floor(viewportHeight*10/100);
+    const playerSize = Math.floor(viewportHeight*15/100);
     playerDiv.setAttribute('data-player-size', playerSize);
 
     playerImageDiv.style.width = `${playerSize}px`
@@ -216,6 +216,8 @@ async function handleStartRaceWithRecording() {
         });
     }
 
+    buildPlayerElements();
+
     startRace();  // Your main race function
 }
 
@@ -241,6 +243,7 @@ function startRace() {
         speeds.push(speed);
         finished.push(false);
     });
+    
 
     movePlayers(); // Start the race animation
 }
@@ -309,7 +312,7 @@ function movePlayers() {
                     }
                     break;
                 default: //BALANCED
-                    const oddsMult = 4 //Lower number means higher discrepency odds depending on rank
+                    const oddsMult = 6 //Lower number means higher discrepency odds depending on rank
                     const rankFactor = Math.trunc(Math.abs((rank - (totalPlayers - 1) / 2) / ((totalPlayers - 1) / 2)) * oddsMult);
                     //console.log(rankFactor);
                     // Determines the odds of addtional speed boost or slow
@@ -402,6 +405,7 @@ function endRace() {
     }
     showStandings();
 }
+
 
 function showStandings(show = true) {
     
