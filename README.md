@@ -18,8 +18,16 @@ This app lets users choose race settings, customize player details, and view rac
 
 - `index.html`: The main HTML file that sets up the UI structure and includes controls for customizing the race.
 - `styles.css`: Contains all the styling for the layout, players, and control elements.
-- `script.js`: Main JavaScript file, managing the race logic, user interactions, and audio playback.
-- `raceTools.js`: Utility functions for generating random player names and colors based on the selected sport.
+- `script.js`: Application state and the main startup entry point.
+- `script.js`: Application state, event wiring, startup, and resize lifecycle.
+- `ui/RaceView.js`: Race-scene rendering, backgrounds, player sprites, and finish lines.
+- `ui/PlayerListView.js`: Dynamic player controls and player form data.
+- `ui/StandingsView.js`: Standings display and clipboard behavior.
+- `ui/ControlPanel.js`: Control visibility, input validation, errors, and toggle layout.
+- `helpers.js`: Shared utilities for generating random player names, colors, and placement labels.
+- `orchestrators/RaceOrchestrator.js`: Race timing, movement, placement, and battle royale flow.
+- `settings.js`: Save/load settings file behavior.
+- `recorder.js`: Screen recording behavior.
 
 ## Getting Started
 
@@ -72,7 +80,7 @@ The application includes user-friendly error handling for:
   
 ## Dependencies
 
-- **raceTools.js**: Used for random name and color generation for players.
+- **helpers.js**: Used for random names, colors, and placement formatting.
 - **Audio and Video Files**: The application supports custom audio files in `.mp4` or compatible audio formats.
 
 ## Author

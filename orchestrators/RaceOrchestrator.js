@@ -1,182 +1,201 @@
-const RaceTypeIndex = Object.freeze({
-  BALANCED: 0,
-  HECTIC: 1,
-  CLOSE: 2,
-});
+const RaceTypeIndex = Object.freeze({ BALANCED: 0, HECTIC: 1, CLOSE: 2 });
+const PlayerModel = typeof module !== 'undefined' && module.exports
+  ? require('../models/Player')
+  : Player;
 
 class RaceOrchestrator {
-  constructor({
-    players = [],
-    raceType = 'Balanced',
-    raceDuration = 15,
-    finishLine = 800,
-    onFrame = null,
-    onFinish = null
-  } = {}) {
-    this.players = players.map((player) => player instanceof Player ? player : new Player(player));
-    this.raceType = raceType;
-    this.raceDuration = raceDuration;
-    this.finishLine = finishLine;
-    this.speeds = [];
-    this.finished = [];
-    this.placements = [];
-    this.tempPlacements = [];
-    this.finishedCount = 0;
-    this.onFrame = onFrame || (() => {});
-    this.onFinish = onFinish || (() => {});
-    this.animationFrameId = null;
-  }
-
-  getRaceTypeIndex() {
-    if (this.raceType === 'Hectic') return RaceTypeIndex.HECTIC;
-    if (this.raceType === 'Close') return RaceTypeIndex.CLOSE;
-    return RaceTypeIndex.BALANCED;
-  }
-
-  initializeRace() {
-    this.finishedCount = 0;
-    this.tempPlacements = [];
-    this.placements = [];
-    this.speeds = [];
-    this.finished = [];
-
-    this.players.forEach((player) => player.resetForRace());
-
-    const maxSpeed = 5 * 10 / this.raceDuration;
-    const trackLength = this.finishLine;
-
-    this.players.forEach(() => {
-      const baseSpeed = trackLength / (60 * this.raceDuration);
-      const speed = Math.min(baseSpeed * (Math.random() * 0.4 + 0.8), maxSpeed);
-      this.speeds.push(speed);
-      this.finished.push(false);
-    });
-
-    return this;
-  }
-
-  applySpeedChange(index, rank, totalPlayers, maxSpeed, minSpeed) {
-    const raceTypeIndex = this.getRaceTypeIndex();
-    const currentSpeed = this.speeds[index];
-    const rankSpread = totalPlayers > 1
-      ? (rank - (totalPlayers - 1) / 2) / ((totalPlayers - 1) / 2)
-      : 0;
-    const midPackPressure = Math.max(0, 1 - Math.abs(rankSpread));
-    let speedChange = 0;
-
-    switch (raceTypeIndex) {
-      case RaceTypeIndex.CLOSE: {
-        const baseDrift = (Math.random() - 0.5) * 0.52 * maxSpeed;
-        const pulseChance = 0.2 + (1 - Math.min(rank / Math.max(totalPlayers - 1, 1), 1)) * 0.1;
-        const pulse = Math.random() < pulseChance
-          ? (Math.random() - 0.5) * 0.9 * maxSpeed
-          : 0;
-        const gapBias = rank === 0 ? -0.18 * maxSpeed : rank >= totalPlayers - 1 ? 0.22 * maxSpeed : 0;
-
-        speedChange = baseDrift + pulse + gapBias;
-
-        if (rank === 0) speedChange -= 0.18 * maxSpeed;
-        if (rank >= totalPlayers - 1) speedChange += 0.16 * maxSpeed;
-        break;
-      }
-      case RaceTypeIndex.HECTIC: {
-        const baseDrift = (Math.random() - 0.5) * 1.2 * maxSpeed;
-        const burst = Math.random() < 0.24
-          ? (Math.random() < 0.5 ? -1 : 1) * (0.7 + Math.random() * 1.1) * maxSpeed
-          : 0;
-        const pressure = Math.random() < 0.2
-          ? (Math.random() - 0.5) * 0.8 * maxSpeed * (1 + Math.abs(rankSpread))
-          : 0;
-        const gapBoost = rank >= totalPlayers - 1 ? 0.18 * maxSpeed : rank === 0 ? -0.12 * maxSpeed : 0;
-
-        speedChange = baseDrift + burst + pressure + gapBoost;
-        if (rank === 0) speedChange *= 0.75;
-        break;
-      }
-      case RaceTypeIndex.BALANCED:
-      default: {
-        const isTrail = rank >= totalPlayers - 1;
-        const isBackHalf = rank >= totalPlayers * 0.65;
-        const baseDrift = (Math.random() - 0.5) * 0.18 * maxSpeed;
-        let surge = 0;
-
-        if (isTrail && Math.random() < 0.2) {
-          surge = (0.35 + Math.random() * 0.7) * maxSpeed;
-        } else if (isBackHalf && Math.random() < 0.12) {
-          surge = (Math.random() * 0.3) * maxSpeed;
-        } else if (Math.random() < 0.06) {
-          surge = (Math.random() - 0.5) * 0.34 * maxSpeed;
+    async handleStartRaceWithRecording() {
+        if (document.getElementById("recordToggle").checked) {
+            await startRecording();
+            // Add delay to let the recording buffer initialize.
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        const drag = Math.random() < 0.05 ? -Math.random() * 0.18 * maxSpeed : 0;
-        const gapPull = isTrail ? 0.06 * maxSpeed : 0;
-        speedChange = baseDrift + surge + drag + gapPull;
-
-        if (Math.abs(rankSpread) < 0.4 && Math.random() < 0.08) {
-          speedChange += (Math.random() - 0.5) * 0.18 * maxSpeed * (0.5 + midPackPressure);
+        if (audio.src) {
+            audio.load();
+            audio.play().catch(error => {
+                showError("An error occurred while trying to play the audio. Please try another file.");
+                console.error("Error during audio playback:", error);
+            });
         }
-        break;
-      }
+
+        buildPlayerElements();
+        this.startRace();
     }
 
-    const smoothedChange = speedChange * 0.55;
-    this.speeds[index] = Math.max(minSpeed, Math.min(currentSpeed + smoothedChange, maxSpeed));
-    return this.speeds[index];
-  }
+    startRace() {
+        refreshPlayerElements(true);
+        toggleControls(false);
+        togglePlayerList(true);
+        showStandings(false);
+        setFinishLinePosition();
+        raceTime = parseInt(document.getElementById('raceTime').value, 10);
+        finishedCount = 0;
+        tempPlacements.length = 0;
+        speeds = [];
+        finished = [];
 
-  tick() {
-    const activePlayers = this.players
-      .map((player, index) => ({ player, index, position: player.position }))
-      .filter(({ index }) => !this.finished[index]);
+        const maxSpeed = 5 * 10 / raceTime;
+        const trackLength = parseInt(document.querySelector('.finish-line1').style.left, 10);
 
-    if (!activePlayers.length) {
-      return this;
+        players.forEach(() => {
+            const baseSpeed = trackLength / (60 * raceTime);
+            const speed = Math.min(baseSpeed * (Math.random() * 0.4 + 0.8), maxSpeed);
+            speeds.push(speed);
+            finished.push(false);
+        });
+
+        this.movePlayers();
     }
 
-    activePlayers.forEach(({ player, index }) => {
-      const remainingPlayers = this.players
-        .map((candidate, candidateIndex) => ({ candidate, candidateIndex, position: candidate.position }))
-        .filter((entry) => !this.finished[entry.candidateIndex]);
+    movePlayers() {
+        const relativeFinish = parseInt(document.querySelector('.finish-line1').style.left, 10);
+        const playerDiv = document.getElementsByClassName('player-container')[0];
+        const playerSize = parseFloat(playerDiv.getAttribute('data-player-size'));
+        const labelSize = parseFloat(window.getComputedStyle(document.querySelector('.player-position-label')).width);
+        const finishLine = relativeFinish - (playerSize + labelSize);
 
-      const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position);
-      const rank = sortedPositions.findIndex((entry) => entry.candidateIndex === index);
-      const multiplier = 10 * window.innerWidth / 1917;
-      const maxSpeed = 5 * multiplier / this.raceDuration;
-      const minSpeed = 1 * multiplier / this.raceDuration;
+        let multiplier = 10 * window.innerWidth / 1917;
+        let tempMaxSpeed = 5 * multiplier / raceTime;
+        let tempMinSpeed = 1 * multiplier / raceTime;
 
-      this.applySpeedChange(index, rank, remainingPlayers.length, maxSpeed, minSpeed);
-      const nextPosition = player.position + this.speeds[index];
-
-      if (nextPosition >= this.finishLine) {
-        player.setPosition(this.finishLine);
-        player.finish(this.finishedCount + 1);
-        this.finished[index] = true;
-        this.finishedCount += 1;
-        this.tempPlacements.push(player.name);
-        this.onFrame?.({ index, player, placement: this.finishedCount });
-
-        if (this.tempPlacements.length === this.players.length) {
-          this.finishRace();
+        const raceType = document.getElementById('raceTypeSelect').selectedIndex;
+        if (raceType === RaceTypeIndex.HECTIC) {
+            tempMaxSpeed = tempMaxSpeed * 2 / 1.5;
+            tempMinSpeed = tempMinSpeed / 1.5;
+        } else if (raceType === RaceTypeIndex.CLOSE) {
+            tempMaxSpeed = tempMaxSpeed / 1.2;
+            tempMinSpeed = tempMinSpeed / 1.2;
         }
-      } else {
-        player.setPosition(nextPosition);
-      }
-    });
 
-    return this;
-  }
+        const maxSpeed = tempMaxSpeed;
+        const minSpeed = tempMinSpeed;
+        const currentPositions = players.map((_, index) => ({
+            index,
+            position: parseFloat(document.getElementsByClassName('player-container')[index].style.left) || 0
+        }));
 
-  finishRace() {
-    this.placements = this.tempPlacements.slice();
-    this.onFinish?.({ placements: this.placements.slice() });
-    return this.placements;
+        players.forEach((player, index) => {
+            if (!finished[index]) {
+                const playerContainer = document.getElementsByClassName('player-container')[index];
+                let position = currentPositions[index].position;
+                const remainingPlayers = currentPositions.filter((_, playerIndex) => !finished[playerIndex]);
+                const totalPlayers = remainingPlayers.length;
+                const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position);
+                const rank = sortedPositions.findIndex(playerPosition => playerPosition.index === index);
+                let speedChange;
+
+                switch (raceType) {
+                    case RaceTypeIndex.CLOSE:
+                        if (Math.random() < 0.04 && totalPlayers !== 1) {
+                            const scaleFactor = (rank - (totalPlayers - 1) / 2) / ((totalPlayers - 1) / 2);
+                            speedChange = (Math.random() + scaleFactor) * 0.5;
+                        } else {
+                            speedChange = (Math.random() - 0.5) * 0.5;
+                        }
+                        break;
+                    case RaceTypeIndex.HECTIC:
+                        if (Math.random() < 0.02) {
+                            speedChange = -maxSpeed / 2;
+                        } else if (Math.random() > 0.98) {
+                            speedChange = maxSpeed / 2;
+                        } else {
+                            speedChange = (Math.random() - 0.5) * 1;
+                        }
+                        break;
+                    default:
+                        {
+                            const oddsMult = 6;
+                            const rankFactor = Math.trunc(Math.abs((rank - (totalPlayers - 1) / 2) / ((totalPlayers - 1) / 2)) * oddsMult);
+                            const lucky1 = Math.floor(Math.random() * rankFactor) % oddsMult;
+                            const lucky2 = Math.floor(Math.random() * rankFactor) % oddsMult;
+                            const lucky3 = Math.random() < 0.15;
+                            const isLucky = lucky1 && lucky2 && lucky3;
+
+                            if (rank >= 2 * totalPlayers / 3 && isLucky) {
+                                speedChange = Math.random() * 0.5;
+                            } else if (rank <= totalPlayers / 3 && isLucky) {
+                                speedChange = (Math.random() - 1) * 0.5;
+                            } else {
+                                speedChange = (Math.random() - 0.5) * 0.5;
+                            }
+                        }
+                        break;
+                }
+
+                speeds[index] = Math.max(minSpeed, Math.min(speeds[index] + speedChange, maxSpeed));
+                position += speeds[index];
+
+                if (position >= finishLine) {
+                    position = finishLine;
+                    finished[index] = true;
+                    finishedCount++;
+                    tempPlacements.push(player.name);
+                    const placement = finishedCount;
+                    const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
+                    const positionLabel = playerContainer.querySelector('.player-position-label');
+                    positionLabel.innerText = `${placement}${suffix}`;
+
+                    if (tempPlacements.length === players.length) {
+                        this.endRace();
+                    }
+                }
+
+                playerContainer.style.left = position + 'px';
+            }
+        });
+
+        const remainingPlayers = currentPositions.filter((_, playerIndex) => !finished[playerIndex]);
+        const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position);
+        sortedPositions.forEach((playerPosition, rank) => {
+            const positionLabel = document.getElementsByClassName('player-container')[playerPosition.index]
+                .querySelector('.player-position-label');
+            const placement = rank + 1 + finishedCount;
+            const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
+            positionLabel.innerText = `${placement}${suffix}`;
+        });
+
+        if (finished.includes(false)) {
+            requestAnimationFrame(() => this.movePlayers());
+        }
+    }
+
+    endRace() {
+        toggleControls(true);
+        if (!document.getElementById('battleRoyaleToggle').checked) {
+            placements = tempPlacements.slice();
+            showStandings();
+            stopRecording();
+            return;
+        }
+
+        const loser = tempPlacements[tempPlacements.length - 1];
+        const playerIndex = players.findIndex(player => player.name === loser);
+        placements.unshift(loser);
+
+        if (playerIndex !== -1) {
+            players.splice(playerIndex, 1);
+            console.log(`Player ${loser} has been removed`);
+        } else {
+            console.log(`Player ${loser} not found`);
+        }
+
+        if (players.length === 1) {
+            showBattleControls(false);
+            placements.unshift(tempPlacements[0]);
+            showStandings();
+            stopRecording();
+            return;
+        }
+
+        showStandings();
+    }
   }
-}
 
 if (typeof window !== 'undefined') {
-  window.RaceOrchestrator = RaceOrchestrator;
+    window.RaceOrchestrator = RaceOrchestrator;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = RaceOrchestrator;
+    module.exports = RaceOrchestrator;
 }
