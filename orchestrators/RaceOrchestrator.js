@@ -19,6 +19,7 @@ class RaceOrchestrator {
             });
         }
 
+        updatePlayerList();
         buildPlayerElements();
         this.startRace();
     }
@@ -38,9 +39,11 @@ class RaceOrchestrator {
         const maxSpeed = 5 * 10 / raceTime;
         const trackLength = parseInt(document.querySelector('.finish-line1').style.left, 10);
 
-        players.forEach(() => {
+        players.forEach((player) => {
+            player.resetForRace();
             const baseSpeed = trackLength / (60 * raceTime);
             const speed = Math.min(baseSpeed * (Math.random() * 0.4 + 0.8), maxSpeed);
+            player.speed = speed;
             speeds.push(speed);
             finished.push(false);
         });
@@ -70,16 +73,16 @@ class RaceOrchestrator {
 
         const maxSpeed = tempMaxSpeed;
         const minSpeed = tempMinSpeed;
-        const currentPositions = players.map((_, index) => ({
+        const currentPositions = players.map((player, index) => ({
             index,
-            position: parseFloat(document.getElementsByClassName('player-container')[index].style.left) || 0
+            position: player.position
         }));
 
         players.forEach((player, index) => {
-            if (!finished[index]) {
+            if (!player.finished) {
                 const playerContainer = document.getElementsByClassName('player-container')[index];
                 let position = currentPositions[index].position;
-                const remainingPlayers = currentPositions.filter((_, playerIndex) => !finished[playerIndex]);
+                const remainingPlayers = currentPositions.filter((_, playerIndex) => !players[playerIndex].finished);
                 const totalPlayers = remainingPlayers.length;
                 const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position);
                 const rank = sortedPositions.findIndex(playerPosition => playerPosition.index === index);
@@ -129,30 +132,24 @@ class RaceOrchestrator {
                 if (position >= finishLine) {
                     position = finishLine;
                     finished[index] = true;
+                    player.finish(finishedCount + 1);
                     finishedCount++;
                     tempPlacements.push(player.name);
-                    const placement = finishedCount;
-                    const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
-                    const positionLabel = playerContainer.querySelector('.player-position-label');
-                    positionLabel.innerText = `${placement}${suffix}`;
 
                     if (tempPlacements.length === players.length) {
                         this.endRace();
                     }
                 }
 
-                playerContainer.style.left = position + 'px';
+                player.position = position;
             }
         });
 
-        const remainingPlayers = currentPositions.filter((_, playerIndex) => !finished[playerIndex]);
+        const remainingPlayers = currentPositions.filter((_, playerIndex) => !players[playerIndex].finished);
         const sortedPositions = remainingPlayers.sort((a, b) => b.position - a.position);
         sortedPositions.forEach((playerPosition, rank) => {
-            const positionLabel = document.getElementsByClassName('player-container')[playerPosition.index]
-                .querySelector('.player-position-label');
             const placement = rank + 1 + finishedCount;
-            const suffix = placement === 1 ? 'st' : placement === 2 ? 'nd' : placement === 3 ? 'rd' : 'th';
-            positionLabel.innerText = `${placement}${suffix}`;
+            players[playerPosition.index].placement = placement;
         });
 
         if (finished.includes(false)) {
@@ -160,17 +157,18 @@ class RaceOrchestrator {
         }
     }
 
-    endRace() {
+    async endRace() {
         toggleControls(true);
         if (!document.getElementById('battleRoyaleToggle').checked) {
             placements = tempPlacements.slice();
             showStandings();
-            stopRecording();
+            await stopRecording();
             return;
         }
 
         const loser = tempPlacements[tempPlacements.length - 1];
-        const playerIndex = players.findIndex(player => player.name === loser);
+        const loserPlayer = players.find(player => player.name === loser && player.placement === players.length);
+        const playerIndex = loserPlayer ? players.findIndex(player => player.id === loserPlayer.id) : -1;
         placements.unshift(loser);
 
         if (playerIndex !== -1) {
@@ -184,7 +182,7 @@ class RaceOrchestrator {
             showBattleControls(false);
             placements.unshift(tempPlacements[0]);
             showStandings();
-            stopRecording();
+            await stopRecording();
             return;
         }
 
