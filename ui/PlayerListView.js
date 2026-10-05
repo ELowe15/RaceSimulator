@@ -1,29 +1,30 @@
 const PlayerListView = (() => {
     let playerListContainer;
     let listVisible = false;
+    const playerRows = new Map();
 
     function createPlayerListContainer() {
-        if (!playerListContainer) {
-            playerListContainer = document.createElement('div');
-            playerListContainer.classList.add('player-list');
-
-            const title = document.createElement('h2');
-            title.textContent = 'Player List';
-            title.classList.add('player-list-title');
-
-            const playerListContent = document.getElementById('playerListContent');
-            playerListContent.addEventListener('change', buildPlayerElements);
-
-            const closePlayer = document.createElement('button');
-            closePlayer.textContent = 'Close';
-            closePlayer.className = 'close-button';
-            closePlayer.addEventListener('click', togglePlayerList);
-
-            playerListContainer.appendChild(title);
-            playerListContainer.appendChild(playerListContent);
-            playerListContainer.appendChild(closePlayer);
-            document.body.appendChild(playerListContainer);
+        if (playerListContainer) {
+            return;
         }
+
+        playerListContainer = document.createElement('div');
+        playerListContainer.classList.add('player-list');
+
+        const title = document.createElement('h2');
+        title.textContent = 'Player List';
+        title.classList.add('player-list-title');
+
+        const playerListContent = document.getElementById('playerListContent');
+        const closePlayer = document.createElement('button');
+        closePlayer.textContent = 'Close';
+        closePlayer.className = 'close-button';
+        closePlayer.addEventListener('click', togglePlayerList);
+
+        playerListContainer.appendChild(title);
+        playerListContainer.appendChild(playerListContent);
+        playerListContainer.appendChild(closePlayer);
+        document.body.appendChild(playerListContainer);
     }
 
     function togglePlayerList(invisible) {
@@ -41,16 +42,18 @@ const PlayerListView = (() => {
         listVisible = !listVisible;
     }
 
-    function createPlayerInput(playerData, index) {
+    function createPlayerInput(player, index) {
         const playerDiv = document.createElement('div');
         playerDiv.classList.add('player-input');
+        playerDiv.dataset.playerId = player.id;
 
         const nameInput = document.createElement('input');
         nameInput.placeholder = `Player ${index + 1} Name`;
         nameInput.classList.add('player-name');
+        nameInput.value = player.name;
 
         const randomPlaceHolder = document.createElement('label');
-        randomPlaceHolder.textContent = getRandomName(document.getElementById('sportSelect').selectedIndex);
+        randomPlaceHolder.textContent = player.name;
         randomPlaceHolder.classList.add('place-holder');
 
         const imageInput = document.createElement('input');
@@ -65,36 +68,65 @@ const PlayerListView = (() => {
         customButton.classList.add('custom-file-button');
 
         const fileNameDisplay = document.createElement('span');
-        fileNameDisplay.textContent = playerData ? playerData.imageName : 'No file chosen';
+        fileNameDisplay.textContent = player.imageName || 'No file chosen';
         fileNameDisplay.classList.add('file-name-display');
+
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = player.backgroundColor;
+        colorInput.classList.add('player-color');
 
         playerDiv.appendChild(nameInput);
         playerDiv.appendChild(randomPlaceHolder);
         playerDiv.appendChild(customButton);
         playerDiv.appendChild(fileNameDisplay);
         playerDiv.appendChild(imageInput);
+        playerDiv.appendChild(colorInput);
+
+        nameInput.addEventListener('input', () => {
+            player.name = nameInput.value || randomPlaceHolder.textContent;
+        });
+
+        colorInput.addEventListener('input', () => {
+            player.backgroundColor = colorInput.value;
+        });
 
         customButton.addEventListener('click', () => imageInput.click());
         imageInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
-            fileNameDisplay.textContent = file ? file.name : 'No file chosen';
-            playerDiv.loadedImage = null;
+            if (!file) {
+                return;
+            }
+
+            player.imageName = file.name;
+            player.image = URL.createObjectURL(file);
+            fileNameDisplay.textContent = file.name;
         });
 
-        playerDiv.loadedImage = null;
-
-        const colorInput = document.createElement('input');
-        colorInput.type = 'color';
-        colorInput.value = playerData ? playerData.backgroundColor : getRandomColor();
-        colorInput.classList.add('player-color');
-        playerDiv.appendChild(colorInput);
-
-        if (playerData) {
-            nameInput.value = playerData.name;
-            playerDiv.loadedImage = playerData.image;
-        }
-
+        playerRows.set(player.id, { element: playerDiv, player });
         return playerDiv;
+    }
+
+    function renderPlayerInputs() {
+        const playerListContent = document.getElementById('playerListContent');
+        const activeIds = new Set(players.map((player) => player.id));
+
+        playerRows.forEach((row, playerId) => {
+            if (!activeIds.has(playerId)) {
+                row.element.remove();
+                playerRows.delete(playerId);
+            }
+        });
+
+        players.forEach((player, index) => {
+            let row = playerRows.get(player.id);
+            if (!row) {
+                row = { element: createPlayerInput(player, index), player };
+            }
+
+            row.element.querySelector('.player-name').placeholder = `Player ${index + 1} Name`;
+            playerListContent.appendChild(row.element);
+        });
     }
 
     function updatePlayerList(playerData) {
@@ -103,55 +135,33 @@ const PlayerListView = (() => {
             return;
         }
 
-        const numPlayers = parseInt(numberInput.value, 10);
-        const playerListContent = document.getElementById('playerListContent');
-
-        if (numPlayers > prevPlayerCount) {
-            for (let index = prevPlayerCount; index < numPlayers; index++) {
-                playerListContent.appendChild(createPlayerInput(playerData ? playerData[index] : null, index));
-            }
-        } else if (numPlayers === 0) {
-            return;
-        } else if (numPlayers < prevPlayerCount) {
-            for (let index = prevPlayerCount - 1; index >= numPlayers; index--) {
-                playerListContent.removeChild(playerListContent.children[index]);
-            }
-        }
-
-        if (numPlayers) {
-            prevPlayerCount = numPlayers;
-        }
+        const numPlayers = Math.max(0, Number.parseInt(numberInput.value, 10) || 0);
+        const existingPlayers = playerData || players;
+        players = PlayerFactory.createBulk(
+            numPlayers,
+            document.getElementById('sportSelect').selectedIndex,
+            existingPlayers
+        );
+        prevPlayerCount = numPlayers;
+        renderPlayerInputs();
     }
 
     function buildPlayerElements() {
-        const playerDivs = document.querySelectorAll('.player-input');
-        const sportSelect = document.getElementById('sportSelect');
-        players = [];
-
-        playerDivs.forEach((div) => {
-            const nameInput = div.querySelector('.player-name');
-            const randomPlaceHolder = div.querySelector('.place-holder');
-            const imageInput = div.querySelector('.player-image');
-            const colorInput = div.querySelector('.player-color');
-            const imageFile = imageInput.files[0];
-            const defaultImage = imageFile
-                ? URL.createObjectURL(imageFile)
-                : imageRoot + defaultPlayerImage[sportSelect.selectedIndex];
-
-            players.push({
-                name: nameInput.value.trim() || randomPlaceHolder.textContent,
-                image: div.loadedImage ? div.loadedImage : defaultImage,
-                backgroundColor: colorInput.value || getRandomColor()
-            });
-        });
-
+        renderPlayerInputs();
         refreshPlayerElements(true);
     }
 
     function loadPlayerList(savedPlayers) {
         document.getElementById('playerListContent').innerHTML = '';
-        prevPlayerCount = 0;
-        updatePlayerList(savedPlayers);
+        playerRows.clear();
+        players = PlayerFactory.createBulk(
+            savedPlayers ? savedPlayers.length : 0,
+            document.getElementById('sportSelect').selectedIndex,
+            savedPlayers || []
+        );
+        document.getElementById('numberOfPlayers').value = players.length;
+        prevPlayerCount = players.length;
+        renderPlayerInputs();
         buildPlayerElements();
     }
 
