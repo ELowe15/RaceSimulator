@@ -2,6 +2,7 @@ class Player {
   constructor({
     name = 'Player',
     image = '',
+    imageName = 'No file chosen',
     backgroundColor = '#ffffff',
     sportIndex = 0,
     position = 0,
@@ -11,16 +12,122 @@ class Player {
     id = null,
     isEliminated = false
   } = {}) {
+    this.listeners = new Set();
     this.id = id ?? `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-    this.name = name;
-    this.image = image;
-    this.backgroundColor = backgroundColor;
-    this.sportIndex = sportIndex;
-    this.position = position;
-    this.speed = speed;
-    this.finished = finished;
-    this.placement = placement;
-    this.isEliminated = isEliminated;
+    this._state = {
+      name,
+      image,
+      imageName,
+      backgroundColor,
+      sportIndex,
+      position,
+      speed,
+      finished,
+      placement,
+      isEliminated
+    };
+  }
+
+  get name() {
+    return this._state.name;
+  }
+
+  set name(value) {
+    this.update({ name: value });
+  }
+
+  get image() {
+    return this._state.image;
+  }
+
+  set image(value) {
+    this.update({ image: value });
+  }
+
+  get imageName() {
+    return this._state.imageName;
+  }
+
+  set imageName(value) {
+    this.update({ imageName: value });
+  }
+
+  get backgroundColor() {
+    return this._state.backgroundColor;
+  }
+
+  set backgroundColor(value) {
+    this.update({ backgroundColor: value });
+  }
+
+  get sportIndex() {
+    return this._state.sportIndex;
+  }
+
+  set sportIndex(value) {
+    this.update({ sportIndex: value });
+  }
+
+  get position() {
+    return this._state.position;
+  }
+
+  set position(value) {
+    this.update({ position: value });
+  }
+
+  get speed() {
+    return this._state.speed;
+  }
+
+  set speed(value) {
+    this.update({ speed: value });
+  }
+
+  get finished() {
+    return this._state.finished;
+  }
+
+  set finished(value) {
+    this.update({ finished: value });
+  }
+
+  get placement() {
+    return this._state.placement;
+  }
+
+  set placement(value) {
+    this.update({ placement: value });
+  }
+
+  get isEliminated() {
+    return this._state.isEliminated;
+  }
+
+  set isEliminated(value) {
+    this.update({ isEliminated: value });
+  }
+
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  update(changes = {}) {
+    const changedFields = {};
+
+    Object.entries(changes).forEach(([field, value]) => {
+      if (this._state[field] !== value) {
+        this._state[field] = value;
+        changedFields[field] = value;
+      }
+    });
+
+    if (Object.keys(changedFields).length) {
+      this.listeners.forEach((listener) => listener(this, changedFields));
+    }
+
+    return this;
   }
 
   resetForRace() {
@@ -45,8 +152,10 @@ class Player {
 
   toJSON() {
     return {
+      id: this.id,
       name: this.name,
       image: this.image,
+      imageName: this.imageName,
       backgroundColor: this.backgroundColor,
       sportIndex: this.sportIndex,
       position: this.position,
