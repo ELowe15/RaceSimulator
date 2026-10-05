@@ -2,6 +2,7 @@ let isRecording = false;
 let mediaRecorder;
 let recordedChunks = [];
 let stream;
+const POST_RACE_RECORDING_DELAY_MS = 4000;
 
 async function startRecording() {
   try {
@@ -46,9 +47,19 @@ async function startRecording() {
 
 async function stopRecording() {
   if (isRecording && mediaRecorder && mediaRecorder.state !== "inactive") {
-    // Wait a short moment (e.g., 500ms–1000ms) before stopping the recording
-    await new Promise(resolve => setTimeout(resolve, 500));    mediaRecorder.stop();
-    stream.getTracks().forEach(track => track.stop());
+    // Let the standings render before starting the post-race hold.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await new Promise(resolve => setTimeout(resolve, POST_RACE_RECORDING_DELAY_MS));
+
+    if (mediaRecorder.state === "inactive") {
+      isRecording = false;
+      return;
+    }
+
+    const stopped = new Promise(resolve => mediaRecorder.addEventListener("stop", resolve, { once: true }));
+    mediaRecorder.stop();
+    await stopped;
+    stream?.getTracks().forEach(track => track.stop());
     isRecording = false;
     console.log("Recording stopped.");
   }

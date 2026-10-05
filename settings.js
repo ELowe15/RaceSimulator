@@ -12,18 +12,22 @@ async function saveSettings() {
     const playerListData = [];
     const playerListContent = document.getElementById('playerListContent');
 
-    for (let player of playerListContent.children) {
-        const name = player.querySelector('.player-name').value.trim();
-        const imageFile = player.querySelector('.player-image').files[0];
-        const imageName = player.querySelector('.file-name-display').textContent;
-        const backgroundColor = player.querySelector('.player-color').value;
+    for (const model of players) {
+        const playerElement = playerListContent.querySelector(`[data-player-id="${model.id}"]`);
+        const imageFile = playerElement ? playerElement.querySelector('.player-image').files[0] : null;
 
-        let image = null;
+        let image = model.image && model.image.startsWith('data:') ? model.image : null;
         if (imageFile) {
             image = await fileToBase64(imageFile);
         }
 
-        playerListData.push({ name, image, imageName, backgroundColor });
+        playerListData.push({
+            id: model.id,
+            name: model.name,
+            image,
+            imageName: model.imageName,
+            backgroundColor: model.backgroundColor
+        });
     }
 
     const settings = {
