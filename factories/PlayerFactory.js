@@ -1,11 +1,18 @@
 class PlayerFactory {
   static createBulk(count, sportIndex = 0, existingPlayers = []) {
     const safeCount = Math.max(0, Number.parseInt(count, 10) || 0);
-    const nextPlayers = existingPlayers.map((player, index) => Player.fromDefinition({
-      ...player,
-      sportIndex: player.sportIndex ?? sportIndex,
-      id: player.id ?? `${Date.now()}-${index}`
-    }));
+    const nextPlayers = existingPlayers.map((player, index) => {
+      if (player instanceof Player) {
+        return player;
+      }
+
+      return Player.fromDefinition({
+        ...player,
+        image: player.image || `${window.imageRoot || 'Images/'}${window.defaultPlayerImage ? window.defaultPlayerImage[sportIndex] : 'bballHollow.png'}`,
+        sportIndex: player.sportIndex ?? sportIndex,
+        id: player.id ?? `${Date.now()}-${index}`
+      });
+    });
 
     for (let index = nextPlayers.length; index < safeCount; index += 1) {
       nextPlayers.push(new Player({
