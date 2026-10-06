@@ -16,7 +16,7 @@ class PlayerFactory {
 
     for (let index = nextPlayers.length; index < safeCount; index += 1) {
       nextPlayers.push(new Player({
-        name: getRandomName(sportIndex),
+        name: "",
         image: `${window.imageRoot || 'Images/'}${window.defaultPlayerImage ? window.defaultPlayerImage[sportIndex] : 'bballHollow.png'}`,
         backgroundColor: getRandomColor(),
         sportIndex,
